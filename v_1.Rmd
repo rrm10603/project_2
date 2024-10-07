@@ -1,0 +1,66 @@
+---
+title: "version 1"
+output: html_document
+date: "2024-10-07"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+```{r}
+
+#read in data
+
+library(tidyverse)
+library(dplyr)
+library(lme4)
+library(ggplot2)
+library(VIM)
+library(naniar)
+library(readr)
+library(kableExtra)
+library(finalfit)
+library(broom)
+library(sjPlot)
+library(StepReg)
+library(reshape2)
+library(Amelia)
+hiv<- read_csv("/home/robmcneil/Documents/advanced_data/hiv_dataset.csv")
+#check data types
+str(hiv)
+
+```
+
+
+
+```{r}
+#filter dataset to two years
+hiv_filtered <- hiv %>%
+  filter(years <= 2)
+
+
+#add labels 
+
+# add labels to hard drugs
+hiv_filtered <- hiv_filtered %>%
+  mutate(hard_drugs = factor(hard_drugs, 
+                              levels = c(0, 1, 2), 
+                              labels = c("Never Used", "Current Users", "Previous Users")))
+```
+
+
+```{r}
+
+#simple linear regression 
+
+lm_result <- lm(LEU3N ~ hard_drugs, data = hiv_filtered)
+summary(lm_result)
+
+
+```
+
+
+
