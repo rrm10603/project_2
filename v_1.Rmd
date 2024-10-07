@@ -4,6 +4,8 @@ output: html_document
 date: "2024-10-07"
 ---
 
+#for git use getwd() function to determine pathway 
+#prof mentioned inclusion of an interaction term 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
@@ -53,14 +55,135 @@ hiv_filtered <- hiv_filtered %>%
 
 
 ```{r}
+#visualize CD4 positive cells
 
-#simple linear regression 
+#test assumption of linearity 
+#dont need to test for linearity with categorical variables 
+#good graph for presentation 
+ggplot(hiv_filtered, aes(x = factor(hard_drugs), y = LEU3N, color = factor(hard_drugs))) +
+  geom_boxplot() +
+  stat_summary(fun = mean, geom = "point", shape = 3, size = 3, color = "black") +  # Adds mean points
+  labs(
+    title = "Figure Box Plot of CD4 based on Drug Usage Groups",
+    x = "Drug Usage Group",
+    y = "CD4",
+    color = "Treatment Group"
+  ) +
+  theme_minimal()
+```
+
+
+```{r}
+
+#for viral load outcome
+#dont need to test for linearity with categorical variables 
+#good graph for presentation 
+ggplot(hiv_filtered, aes(x = factor(hard_drugs), y = VLOAD, color = factor(hard_drugs))) +
+  geom_boxplot() +
+  stat_summary(fun = mean, geom = "point", shape = 3, size = 3, color = "black") +  # Adds mean points
+  labs(
+    title = "Figure Box Plot of CD4 based on Drug Usage Groups",
+    x = "Drug Usage Group",
+    y = "Viral Load",
+    color = "Treatment Group"
+  ) +
+  theme_minimal()
+
+
+
+
+```
+
+```{r}
+
+#simple linear regression for CD4 + tcell count
 
 lm_result <- lm(LEU3N ~ hard_drugs, data = hiv_filtered)
 summary(lm_result)
 
+#slr for viral load 
+
+lm_vload <- lm(VLOAD ~ hard_drugs, data= hiv_filtered)
+summary(lm_vload)
 
 ```
+
+```{r}
+
+#calculate residuals and fitted values, of my models 
+
+LEU3N_fitted<- predict(lm_result)
+LEU3N_resid <-  resid(lm_result)
+
+vload_fitted <- predict(lm_vload)
+vload_resid <- resid(lm_vload)
+
+ 
+
+
+```
+
+
+```{r}
+
+# Plot Residuals vs Fitted LEU3N  (Homoscedasticity)
+ggplot(data = NULL, aes(x = LEU3N_fitted, y = LEU3N_resid)) +
+  geom_point() +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
+  labs(title = "Figure 1: CD4 T-cells Residuals vs Fitted", 
+       x = "Fitted Values",
+       y = "Residuals") +
+  theme_minimal()
+
+
+
+#plot residuals vs fitted for Viral Load
+ggplot(data = NULL, aes(x = vload_fitted, y = vload_resid)) +
+  geom_point() +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
+  labs(title = "Figure 2: Viral load Residuals vs Fitted", 
+       x = "Fitted Values",
+       y = "Residuals") +
+  theme_minimal()
+
+```
+
+
+```{r}
+
+
+# Fit the MANOVA model
+manova_model <- manova(cbind(LEU3N, VLOAD) ~ hard_drugs, data = hiv_filtered)
+
+# Summarize the MANOVA model
+summary(manova_model)
+
+
+summary(manova_model, test = "Pillai") 
+
+```
+
+```{r}
+
+
+#test assumption of linearity 
+#dont need to test for linearity with categorical variables 
+#good graph for presentation 
+ggplot(hiv_filtered, aes(x = factor(hard_drugs), y = LEU3N, color = factor(hard_drugs))) +
+  geom_boxplot() +
+  stat_summary(fun = mean, geom = "point", shape = 3, size = 3, color = "black") +  # Adds mean points
+  labs(
+    title = "Figure Box Plot of CD4 based on Drug Usage Groups",
+    x = "Drug Usage Group",
+    y = "CD4",
+    color = "Treatment Group"
+  ) +
+  theme_minimal()
+```
+
+
+
+
 
 
 
