@@ -14,21 +14,23 @@ library(reshape2)
 library(Amelia)
 getwd()
 
-
+#####
 Implications
 Longitudinal Analysis: You will likely want to conduct analyses that account for the repeated measures. 
 Techniques such as mixed-effects models or generalized estimating equations (GEEs) can be used to 
 handle the correlations between measurements taken from the same subject.
 
 Restructuring Data: Depending on your analysis, you might consider reshaping your
-data (e.g., from long format to wide format) if you're interested in specific time points.
+data (e.g., from long format to wide format) #if you're interested in specific time points.
 This can be done using functions like pivot_wider() from the tidyverse package.
 
 Grouping Data: If you want to compare treatment responses at specific time points (e.g., year 2), you can filter or group your dataset accordingly.
+#######
 
-#read in data
+
+read in data
 hiv<- read_csv("/home/robmcneil/Documents/advanced_data/hiv_dataset.csv")
-#check data types
+check data types
 str(hiv)
 
 Question of Interest: We are interested in understanding how treatment response
