@@ -4,7 +4,14 @@ output: html_document
 date: "2024-10-07"
 ---
 
-#for git use getwd() function to determine pathway 
+
+#some steps for commiting to git and pushing to github:
+for git use getwd() function to determine pathway 
+cd /home/robmcneil/Desktop/test
+git branch
+git checkout your-branch-name
+git status
+git push origin your-branch-name
 #prof mentioned inclusion of an interaction term 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
