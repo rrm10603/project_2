@@ -41,16 +41,19 @@ str(hiv)
 ```{r}
 #filter dataset to two years
 hiv_filtered <- hiv %>%
-  filter(years <= 2)
+  filter(years <= 2, hivpos ==1)
 
 
 #add labels 
 
 # add labels to hard drugs
-hiv_filtered <- hiv_filtered %>%
-  mutate(hard_drugs = factor(hard_drugs, 
-                              levels = c(0, 1, 2), 
-                              labels = c("Never Used", "Current Users", "Previous Users")))
+#hiv_filtered <- hiv_filtered %>%
+    #mutate(hard_drugs = case_when(
+       # hard_drugs == "Never Used" ~ 0,
+       # hard_drugs == "Current Users" ~ 1,
+       # hard_drugs == "Previous Users" ~ 2,
+      #  TRUE ~ NA_real_  # Handling any other cases
+  #  ))
 ```
 
 
@@ -96,9 +99,28 @@ ggplot(hiv_filtered, aes(x = factor(hard_drugs), y = VLOAD, color = factor(hard_
 
 ```{r}
 
+#create correlation matrix 
+
+hiv_filtered_c <- hiv_filtered %>%
+  na.omit()
+correlation_matrix <-cor(hiv_filtered_c)
+print(correlation_matrix)
+#heropialte (took heroine or opiates since last visit) and IDU (took drugs with a needle) are highly correlated with hard_drugs
+
+
+
+```
+
+
+
+
+
+
+```{r}
+
 #simple linear regression for CD4 + tcell count
 
-lm_result <- lm(LEU3N ~ hard_drugs, data = hiv_filtered)
+lm_LEU3N <- lm(LEU3N ~ hard_drugs, data = hiv_filtered)
 summary(lm_result)
 
 #slr for viral load 
@@ -106,6 +128,7 @@ summary(lm_result)
 lm_vload <- lm(VLOAD ~ hard_drugs, data= hiv_filtered)
 summary(lm_vload)
 
+#need to include confidence intervals
 ```
 
 ```{r}
@@ -163,26 +186,31 @@ summary(manova_model, test = "Pillai")
 
 ```
 
+
+
+
 ```{r}
+#perform stepwise regression for model selection 
+# Remove rows with NA values in the relevant columns
+hiv_clean <- hiv_filtered %>%
+  na.omit
+
+# Define the formula for LEU3N (saturated)
+LEU3N_formula <- LEU3N ~ hard_drugs + IDU+HEROPIATE+ age + EDUCBAS + RACE + ADH +DKGRP + SMOKE + CESD + DYSLIP +LDL +TRIG+ TCHOL +FP+FRP+KID+LIV34+DIAB+HBP+BMI+income+HASHF
+
+# Perform stepwise regression for attachment on the cleaned data
+stepwise_model <- stepwise(formula = LEU3N_formula,
+                                   data = hiv_clean,
+                                   type = "linear",
+                                   include = c('hard_drugs'), # Adjust as needed
+                                   strategy = "bidirection",
+                                   metric = c("AIC", "BIC"))
+
+# view stepwise model
+stepwise_model
 
 
-#test assumption of linearity 
-#dont need to test for linearity with categorical variables 
-#good graph for presentation 
-ggplot(hiv_filtered, aes(x = factor(hard_drugs), y = LEU3N, color = factor(hard_drugs))) +
-  geom_boxplot() +
-  stat_summary(fun = mean, geom = "point", shape = 3, size = 3, color = "black") +  # Adds mean points
-  labs(
-    title = "Figure Box Plot of CD4 based on Drug Usage Groups",
-    x = "Drug Usage Group",
-    y = "CD4",
-    color = "Treatment Group"
-  ) +
-  theme_minimal()
 ```
-
-
-
 
 
 
