@@ -9,7 +9,7 @@ date: "2024-10-07"
 for git use getwd() function to determine pathway 
 cd /home/robmcneil/Desktop/test
 git branch
-git checkout your-branch-name
+git checkout your-branch-name (can do this in R terminal )
 git status
 git push origin your-branch-name
 #prof mentioned inclusion of an interaction term 
@@ -37,7 +37,14 @@ library(sjPlot)
 library(StepReg)
 library(reshape2)
 library(Amelia)
-hiv<- read_csv("/home/robmcneil/Documents/advanced_data/hiv_dataset.csv")
+
+#linux pathway
+#hiv<- read_csv("/home/robmcneil/Documents/advanced_data/hiv_dataset.csv")
+
+#windows pathway
+hiv<- read_csv("C:/Users/rrm10/OneDrive/Desktop/advanced data analysis/hiv_dataset.csv")
+
+
 #check data types
 str(hiv)
 
