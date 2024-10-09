@@ -39,10 +39,10 @@ library(reshape2)
 library(Amelia)
 
 #linux pathway
-#hiv<- read_csv("/home/robmcneil/Documents/advanced_data/hiv_dataset.csv")
+hiv<- read_csv("/home/robmcneil/Documents/advanced_data/hiv_dataset.csv")
 
 #windows pathway
-hiv<- read_csv("C:/Users/rrm10/OneDrive/Desktop/advanced data analysis/hiv_dataset.csv")
+#hiv<- read_csv("C:/Users/rrm10/OneDrive/Desktop/advanced data analysis/hiv_dataset.csv")
 
 
 #check data types
