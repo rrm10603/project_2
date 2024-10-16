@@ -3,7 +3,9 @@ title: "version 1"
 output: html_document
 date: "2024-10-07"
 ---
-
+never: hard use at O, at 0 years 
+previous: years at 2, hard use at 0
+current: hard use at 1, years at 2 
 
 #some steps for commiting to git and pushing to github:
 for git use getwd() function to determine pathway 
@@ -70,6 +72,25 @@ hiv_filtered <- hiv %>%
   #  ))
 ```
 
+
+```{r}
+#examine missing data, code example from gum treatment project
+
+gum$attach1yr_missing <- ifelse(is.na(gum$attach1year), 1, 0)
+gum$pd1yr_missing <- ifelse(is.na(gum$pd1year),1,0)
+
+# Find the percent of each treatent group that has missing follow up data 
+missing_percentage_table_by_trtgroup <- gum %>%
+  group_by(trtgroup) %>%
+  summarize(
+    percent_missing_attach = mean(attach1yr_missing) * 100,
+    percent_missing_pd = mean (pd1yr_missing) * 100)
+
+print(missing_percentage_table_by_trtgroup)
+
+
+
+```
 
 ```{r}
 #visualize CD4 positive cells
@@ -223,6 +244,19 @@ stepwise_model <- stepwise(formula = LEU3N_formula,
 # view stepwise model
 stepwise_model
 
+
+```
+
+
+
+```{r}
+
+test_model <- lm(LEU3N~ hard_drugs +age, data= hiv_clean)
+
+test_model_i <- lm(LEU3N ~ hard_drugs *age, data =hiv_clean)
+
+summary(test_model)
+summary(test_model_i)
 
 ```
 
