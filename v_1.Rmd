@@ -6,6 +6,10 @@ date: "2024-10-07"
 never: hard use at O, at 0 years 
 previous: years at 2, hard use at 0
 current: hard use at 1, years at 2 
+partial f test or critical values
+
+correlation coeficients beween variables 
+-
 
 #some steps for commiting to git and pushing to github:
 for git use getwd() function to determine pathway 
@@ -60,20 +64,13 @@ hiv_filtered <- hiv %>%
   filter(years <= 2, hivpos ==1)
 
 
-#add labels 
 
-# add labels to hard drugs
-#hiv_filtered <- hiv_filtered %>%
-    #mutate(hard_drugs = case_when(
-       # hard_drugs == "Never Used" ~ 0,
-       # hard_drugs == "Current Users" ~ 1,
-       # hard_drugs == "Previous Users" ~ 2,
-      #  TRUE ~ NA_real_  # Handling any other cases
-  #  ))
 ```
 
 
-```{r}
+
+
+#```{r}
 #examine missing data, code example from gum treatment project
 
 gum$attach1yr_missing <- ifelse(is.na(gum$attach1year), 1, 0)
@@ -90,7 +87,7 @@ print(missing_percentage_table_by_trtgroup)
 
 
 
-```
+#```
 
 ```{r}
 #visualize CD4 positive cells
