@@ -65,7 +65,39 @@ hiv_filtered <- hiv %>%
 
 ```
 
+```{r}
 
+hiv_categorized <- hiv %>%
+    mutate(drug_use_status = case_when(
+       hard_drugs == 1 & years == 2 ~ "current",      # Current users
+        hard_drugs == 0 & years == 2 & (years > 0) ~ "previous",  # Previous users
+        hard_drugs == 0 & years == 0 ~ "never"         # Never users
+    ))
+View(hiv_categorized)
+hiv_categorized <- hiv_filtered %>%
+    mutate(drug_use_status = case_when(
+        hard_drugs == 1 & years == 2 ~ "current",      # Current users
+       hard_drugs == 0 & years == 2 & (years > 0) ~ "previous",  # Previous users
+        hard_drugs == 0 & years == 0 ~ "never"         # Never users
+   ))
+
+
+
+```
+
+```{r}
+# scratch work to convert long to wide
+
+hiv_wide <- hiv %>%
+  pivot_wider(
+    names_from = years,
+    values_from = c(AGG_MENT, LEU3N, VLOAD), 
+    names_sep = "_"
+  )
+
+
+
+```
 
 
 #```{r}
