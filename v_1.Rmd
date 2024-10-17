@@ -90,25 +90,54 @@ print(hiv_categorized)
 
 
 
-calculate_vload_change <- function(data) {
+delta_calculations <- function(data) {
     data %>%
         filter(years %in% c(0, 2)) %>%  # Keep only years 0 and 2
         group_by(newid) %>%              # Group by newid
         summarize(
-            change_VLOAD = VLOAD[years == 2] - VLOAD[years == 0],  # Calculate change
+            delta_VLOAD = VLOAD[years == 0] - VLOAD[years == 2], #calc VLOAD delta
+            delta_LEU3N = LEU3N[years ==2]  - LEU3N[years ==0],
+            delta_ment  = AGG_MENT[years ==2] - AGG_MENT[years==0],
+            delta_phys  = AGG_PHYS[years ==2] - AGG_PHYS[years==0],
             drug_use_status = first(drug_use_status),  # Get drug use status
             ADH = last(ADH),                          # Get ADH
-            age = first(age),                          # Get age
+            age = last(age), 
+            HASHV = last(HASHV),
+            HASHF = last(HASHF),
+            income = first(income),
+            BMI    = last(BMI),
+            HBP    = last(HBP), 
+            DIAB   = first(DIAB),
+            LIV34  = first(LIV34),
+            KID    = first(KID),
+            FRP    = first(FRP),
+            FP     = first(FP),
+            TCHOL  = mean(TCHOL, na.rm = TRUE),
+            TRIG   = mean(TRIG, na.rm = TRUE),
+            LDL    = mean(LDL, na.rm = TRUE),
+            DYSLIP = first(DYSLIP),
+            CESD   = last(CESD),
+            SMOKE  = last(SMOKE),
+            DKGRP  = last(DKGRP),     #alchohol use
+            HEROPIATE= last(HEROPIATE),
+            IDU    = last (IDU),
+            RACE   = first(RACE),
+            EDUCBAS = last (EDUCBAS),
+            hivpos  = first(hivpos),
+            ART     = last(ART),
+            everART = first(everART),
+            
+            
+            
             .groups = 'drop'                           # Drop grouping
-        ) %>%
-        filter(!is.na(change_VLOAD) & !is.infinite(change_VLOAD))  # Remove NA and infinite values
+        ) 
 }
 
 # Call the function
-change_variables <- calculate_vload_change(hiv_categorized)
+hiv_deltas <- delta_calculations(hiv_categorized)
 
 # View the result
-print(change_variables)
+print(hiv_deltas)
 
 
 
@@ -118,24 +147,6 @@ print(change_variables)
 
 
 
-
-
-
-
-
-```{r}
-# scratch work to convert long to wide
-
-hiv_wide <- hiv %>%
-  pivot_wider(
-    names_from = years,
-    values_from = c(AGG_MENT, LEU3N, VLOAD), 
-    names_sep = "_"
-  )
-
-
-
-```
 
 
 #```{r}
