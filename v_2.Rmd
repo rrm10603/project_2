@@ -1,0 +1,150 @@
+---
+title: "version2"
+author: "Rob McNeil"
+date: "2024-10-17"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Version 2 focusing on data management 
+
+some useful git/ github command line prompts:
+
+for git use getwd() function to determine pathway 
+cd /home/robmcneil/Desktop/test
+git branch
+git checkout your-branch-name (can do this in R terminal )
+git status
+git push origin your-branch-name
+git pull orgin your-branch-name
+
+
+
+```{r}
+
+#read in data
+
+library(tidyverse)
+library(dplyr)
+library(lme4)
+library(ggplot2)
+library(VIM)
+library(naniar)
+library(readr)
+library(kableExtra)
+library(finalfit)
+library(broom)
+library(sjPlot)
+library(StepReg)
+library(reshape2)
+library(Amelia)
+
+#linux pathway
+#hiv<- read_csv("/home/robmcneil/Documents/advanced_data/hiv_dataset.csv")
+
+#windows pathway
+hiv<- read_csv("C:/Users/rrm10/OneDrive/Desktop/advanced data analysis/hiv_dataset.csv")
+
+
+#check data types
+str(hiv)
+
+```
+
+
+
+```{r}
+#filter dataset to two years
+hiv_filtered <- hiv %>%
+  filter(years <= 2)
+
+
+
+```
+
+
+```{r}
+
+
+hiv_categorized <- hiv_filtered %>%
+    mutate(drug_use_status = case_when(
+        hard_drugs == 1 & years == 2 ~ "current",      # Current users
+        hard_drugs == 1 & (years == 0 | years == 1) ~ "previous",  # Previous users
+        hard_drugs == 0 & (years == 0 | years == 1 | years == 2) ~ "never" 
+    ))
+
+
+```
+
+
+
+
+```{r}
+
+#create base attachment and pocket depth outcome variables 
+gum <- gum %>%
+  mutate( 
+    attach = attach1year - attachbase,
+    pd     = pd1year    - pdbase
+  )
+
+
+delta_vload <- hiv_categorized %>%
+  mutate(VLOAD - VLOAD ) (years??)
+
+```
+
+
+```{r}
+
+#create change variables:
+
+# Assuming hiv_categorized is your dataset
+hiv_categorized <- hiv_categorized %>%
+    arrange(newid, years) %>%  # Ensure the data is ordered by newid and years
+    group_by(newid) %>%        # Group by individual ID
+    mutate(
+        change_AGG_MENT = AGG_MENT - lag(AGG_MENT, order_by = years),
+        change_AGG_PHYS = AGG_PHYS - lag(AGG_PHYS, order_by = years),
+        change_LEU3N = LEU3N - lag(LEU3N, order_by = years),
+        change_VLOAD = VLOAD - lag(VLOAD, order_by = years)
+    ) %>%
+    ungroup()  # Ungroup after mutation
+
+
+
+
+```
+
+```{r}
+
+
+calculate_vload_change <- function(data) {
+    data %>%
+        filter(years %in% c(0, 2)) %>%  # Keep only years 0 and 2
+        group_by(newid) %>%              # Group by newid
+        summarize(
+            change_VLOAD = VLOAD[years == 2] - VLOAD[years == 0],  # Calculate change
+            drug_use_status = first(drug_use_status),  # Get drug use status
+            ADH = last(ADH),                          # Get ADH
+            age = first(age),                          # Get age
+            .groups = 'drop'                           # Drop grouping
+        ) %>%
+        filter(!is.na(change_VLOAD) & !is.infinite(change_VLOAD))  # Remove NA and infinite values
+}
+
+# Call the function
+change_variables <- calculate_vload_change(hiv_categorized)
+
+# View the result
+print(change_variables)
+
+
+
+```
+
+
+
