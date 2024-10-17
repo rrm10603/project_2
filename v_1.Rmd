@@ -45,14 +45,17 @@ library(reshape2)
 library(Amelia)
 
 #linux pathway
-hiv<- read_csv("/home/robmcneil/Documents/advanced_data/hiv_dataset.csv")
+#hiv<- read_csv("/home/robmcneil/Documents/advanced_data/hiv_dataset.csv")
 
 #windows pathway
-#hiv<- read_csv("C:/Users/rrm10/OneDrive/Desktop/advanced data analysis/hiv_dataset.csv")
+hiv<- read_csv("C:/Users/rrm10/OneDrive/Desktop/advanced data analysis/hiv_dataset.csv")
 
+# Jessicas read in data
+#hiv<- read_csv("~/Downloads/hiv_dataset.csv")
 
 #check data types
 str(hiv)
+print(hiv)
 
 ```
 
@@ -60,27 +63,65 @@ str(hiv)
 
 ```{r}
 #filter dataset to two years
+print(hiv)
 hiv_filtered <- hiv %>%
   filter(years <= 2, hivpos ==1)
+print(hiv_filtered)
+```
+
+```{r}
+
+hiv_categorized <- hiv_filtered %>%
+  group_by(newid) %>%
+  mutate(drug_use_status = case_when(
+    all(hard_drugs == 0) ~ "Never",
+    hard_drugs[3] == 1 ~ "Current",
+    hard_drugs[3] == 0 & any(hard_drugs[1:2] == 1) ~ "Previous"
+  )) %>%
+  
+  ungroup()
+  
+print(hiv_categorized)
 
 ```
+
 
 ```{r}
 
 
 
+calculate_vload_change <- function(data) {
+    data %>%
+        filter(years %in% c(0, 2)) %>%  # Keep only years 0 and 2
+        group_by(newid) %>%              # Group by newid
+        summarize(
+            change_VLOAD = VLOAD[years == 2] - VLOAD[years == 0],  # Calculate change
+            drug_use_status = first(drug_use_status),  # Get drug use status
+            ADH = last(ADH),                          # Get ADH
+            age = first(age),                          # Get age
+            .groups = 'drop'                           # Drop grouping
+        ) %>%
+        filter(!is.na(change_VLOAD) & !is.infinite(change_VLOAD))  # Remove NA and infinite values
+}
 
-hiv_categorized <- hiv_filtered %>%
-    mutate(drug_use_status = case_when(
-        hard_drugs == 1 & years == 2 ~ "current",      # Current users
-       hard_drugs == 1 & years == 0 | 1  ~ "previous",  # Previous users
-        hard_drugs == 0 & years == 0|1|2~ "never" 
-      
-   ))
+# Call the function
+change_variables <- calculate_vload_change(hiv_categorized)
+
+# View the result
+print(change_variables)
 
 
 
 ```
+
+
+
+
+
+
+
+
+
 
 ```{r}
 # scratch work to convert long to wide
