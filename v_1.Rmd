@@ -433,35 +433,13 @@ print(hiv_deltas)
 
 
 
-
-
-
-#```{r}
-#examine missing data, code example from gum treatment project
-
-gum$attach1yr_missing <- ifelse(is.na(gum$attach1year), 1, 0)
-gum$pd1yr_missing <- ifelse(is.na(gum$pd1year),1,0)
-
-# Find the percent of each treatent group that has missing follow up data 
-missing_percentage_table_by_trtgroup <- gum %>%
-  group_by(trtgroup) %>%
-  summarize(
-    percent_missing_attach = mean(attach1yr_missing) * 100,
-    percent_missing_pd = mean (pd1yr_missing) * 100)
-
-print(missing_percentage_table_by_trtgroup)
-
-
-
-#```
-
 ```{r}
 #visualize CD4 positive cells
 
 #test assumption of linearity 
 #dont need to test for linearity with categorical variables 
 #good graph for presentation 
-ggplot(hiv_filtered, aes(x = factor(hard_drugs), y = LEU3N, color = factor(hard_drugs))) +
+ggplot(hiv_deltas, aes(x = factor(drug_use_status), y = delta_LEU3N, color = factor(drug_use_status))) +
   geom_boxplot() +
   stat_summary(fun = mean, geom = "point", shape = 3, size = 3, color = "black") +  # Adds mean points
   labs(
@@ -479,13 +457,13 @@ ggplot(hiv_filtered, aes(x = factor(hard_drugs), y = LEU3N, color = factor(hard_
 #for viral load outcome
 #dont need to test for linearity with categorical variables 
 #good graph for presentation 
-ggplot(hiv_filtered, aes(x = factor(hard_drugs), y = VLOAD, color = factor(hard_drugs))) +
+ggplot(hiv_deltas, aes(x = factor(drug_use_status), y = log(delta_VLOAD), color = factor(drug_use_status))) +
   geom_boxplot() +
   stat_summary(fun = mean, geom = "point", shape = 3, size = 3, color = "black") +  # Adds mean points
   labs(
-    title = "Figure Box Plot of CD4 based on Drug Usage Groups",
+    title = "Figure Box Plot of log-transformed Viral Load based on Drug Usage Groups",
     x = "Drug Usage Group",
-    y = "Viral Load",
+    y = "Log Viral Load",
     color = "Treatment Group"
   ) +
   theme_minimal()
@@ -495,6 +473,56 @@ ggplot(hiv_filtered, aes(x = factor(hard_drugs), y = VLOAD, color = factor(hard_
 
 ```
 
+
+
+
+```{r}
+#visualize agg_ment
+
+
+# Create the box plot
+ggplot(hiv_deltas, aes(x = factor(drug_use_status), y = delta_ment, color = factor(drug_use_status))) +
+  geom_boxplot() +
+  stat_summary(fun = mean, geom = "point", shape = 3, size = 3, color = "black") +  # Adds mean points
+  labs(
+    title = "Box Plot of AGG_MENT Based on Drug Usage Groups",
+    x = "Drug Usage Group",
+    y = "AGG_MENT",
+    color = "Drug Usage Group"
+  ) +
+  theme_minimal() +
+  scale_color_manual(values = c("Current" = "#1f78b4",   # Blue
+                                  "Never" = "#33a02c",    # Green
+                                  "Previous" = "#e31a1c"))  # Red
+
+
+
+
+
+
+```
+```{r}
+#visualize agg_phys
+# Create the box plot
+ggplot(hiv_deltas, aes(x = factor(drug_use_status), y = delta_phys, color = factor(drug_use_status))) +
+  geom_boxplot() +
+  stat_summary(fun = mean, geom = "point", shape = 3, size = 3, color = "black") +  # Adds mean points
+  labs(
+    title = "Box Plot of AGG_Phys Based on Drug Usage Groups",
+    x = "Drug Usage Group",
+    y = "AGG_MENT",
+    color = "Drug Usage Group"
+  ) +
+  theme_minimal() +
+  scale_color_manual(values = c("Current" = "#1f78b4",   # Blue
+                                  "Never" = "#33a02c",    # Green
+                                  "Previous" = "#e31a1c"))  # Red
+
+
+
+
+
+```
 ```{r}
 
 #create correlation matrix 
@@ -516,17 +544,27 @@ print(correlation_matrix)
 
 ```{r}
 
-#simple linear regression for CD4 + tcell count
+#simple linear regression models. rework to set never as the reference group
+#unique(hiv_deltas$drug_use_status) 
 
-lm_LEU3N <- lm(LEU3N ~ hard_drugs, data = hiv_filtered)
+lm_LEU3N <- lm(delta_LEU3N ~ drug_use_status, data = hiv_deltas)
 summary(lm_result)
 
 #slr for viral load 
 
-lm_vload <- lm(VLOAD ~ hard_drugs, data= hiv_filtered)
+lm_vload <- lm(delta_VLOAD ~ drug_use_status, data= hiv_deltas)
 summary(lm_vload)
 
 #need to include confidence intervals
+
+
+#SLR for physical health
+
+lm_phys <-lm(delta_phys ~ drug_use_status, data=hiv_deltas)
+summary(lm_phys)
+
+lm_mental <- lm(delta_ment ~ drug_use_status, data = hiv_deltas)
+summary(lm_mental)
 ```
 
 ```{r}
@@ -538,6 +576,13 @@ LEU3N_resid <-  resid(lm_result)
 
 vload_fitted <- predict(lm_vload)
 vload_resid <- resid(lm_vload)
+
+phys_fitted <- predict(lm_phys)
+phys_resid <- resid(lm_phys)
+
+
+ment_fitted <- predict(lm_mental)
+ment_resid  <- fitted(lm_mental)
 
  
 
@@ -563,6 +608,24 @@ ggplot(data = NULL, aes(x = vload_fitted, y = vload_resid)) +
   geom_point() +
   geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
   labs(title = "Figure 2: Viral load Residuals vs Fitted", 
+       x = "Fitted Values",
+       y = "Residuals") +
+  theme_minimal()
+
+#plot residuals for Physical 
+ggplot(data = NULL, aes(x = phys_fitted, y = phys_resid)) +
+  geom_point() +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
+  labs(title = "Figure 3: Physical Health Measurement Residuals vs Fitted", 
+       x = "Fitted Values",
+       y = "Residuals") +
+  theme_minimal()
+
+
+ggplot(data = NULL, aes(x = ment_fitted, y = ment_resid)) +
+  geom_point() +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
+  labs(title = "Figure 3: PMental Health Measurement Residuals vs Fitted", 
        x = "Fitted Values",
        y = "Residuals") +
   theme_minimal()
