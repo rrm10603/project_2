@@ -1,5 +1,5 @@
 ---
-title: "notes"
+title: "notes made by Rob"
 format: html
 editor: visual
 ---
@@ -24,3 +24,23 @@ You can add options to executable code like this
 ```
 
 The `echo: false` option disables the printing of code (only output is displayed).
+
+\*\*mainly missing data and outliers
+
+#poorly designed study if you dont address missing data first
+
+#use of last obs
+
+use of multiple imputation
+
+sensitivity analysis on missing data
+
+#if you have implemented a missing data method, rerun the analysis with different assumptions
+
+#what method are good and simple
+
+-if covariate has high rate of missingness, (more than 20%)
+
+-information on datamanagement in introduction
+
+#maybe make a dumy variable with smoke
