@@ -48,13 +48,13 @@ library(fastDummies)
 library(vcd)
 
 #linux pathway
-#hiv<- read_csv("/home/robmcneil/Documents/advanced_data/hiv_dataset.csv")
+hiv<- read_csv("/home/robmcneil/Documents/advanced_data/hiv_dataset.csv")
 
 #windows pathway
 #hiv<- read_csv("C:/Users/rrm10/OneDrive/Desktop/advanced data analysis/hiv_dataset.csv")
 
 # Jessicas read in data
-hiv<- read_csv("~/Downloads/hiv_dataset.csv")
+#hiv<- read_csv("~/Downloads/hiv_dataset.csv")
 
 #check data types
 str(hiv)
@@ -423,20 +423,6 @@ print(chi_squared_result)
 
 
 
-# box plot on log-transformed variable- makes box plot less compressed?
-ggplot(hiv_categorized, aes(x = factor(drug_use_status), y = log(VLOAD), color = factor(drug_use_status))) +
-  geom_boxplot() +
-  stat_summary(fun = mean, geom = "point", shape = 3, size = 3, color = "black") +  # Adds mean points
-  labs(
-    title = "Box Plot of Log-Transformed Viral Load Based on Drug Usage Groups",
-    x = "Drug Usage Group",
-    y = "Log(Viral Load)",
-    color = "Drug Usage Group"
-  ) +
-  theme_minimal() +
-  scale_color_manual(values = c("Current" = "#1f78b4",   # Blue
-                                  "Never" = "#33a02c",    # Green
-                                  "Previous" = "#e31a1c"))  # Red
 ```
 
 
@@ -453,18 +439,7 @@ chi_squared_result <- chisq.test(contingency_table)
 # Print the results
 print(chi_squared_result)
 
-#visualize distribution of LEU3N across drug use categories with a box plot. All three groups overlap, never group has outliers 
 
-ggplot(hiv_categorized, aes(x = drug_use_status, y = LEU3N, fill = drug_use_status)) +
-    geom_boxplot() +
-    scale_fill_manual(values = c("Current" = "#1f78b4",   # Blue
-                                  "Never" = "#33a02c",    # Green
-                                  "Previous" = "#e31a1c")) + # Red
-    labs(title = "Box Plot of LEU3N by Drug Use Status",
-         x = "Drug Use Status", 
-         y = "LEU3N") +
-    theme_minimal() +
-    theme(legend.position = "none")
 
 
 
@@ -483,20 +458,7 @@ chi_squared_result <- chisq.test(contingency_table)
 print(chi_squared_result)
 
 
-# Create the box plot (maybe make box plot on change variable)
-ggplot(hiv_categorized, aes(x = factor(drug_use_status), y = AGG_PHYS, color = factor(drug_use_status))) +
-  geom_boxplot() +
-  stat_summary(fun = mean, geom = "point", shape = 3, size = 3, color = "black") +  # Adds mean points
-  labs(
-    title = "Box Plot of AGG_PHYS Based on Drug Usage Groups",
-    x = "Drug Usage Group",
-    y = "AGG_PHYS",
-    color = "Drug Usage Group"
-  ) +
-  theme_minimal() +
-  scale_color_manual(values = c("Current" = "#1f78b4",   # Blue
-                                  "Never" = "#33a02c",    # Green
-                                  "Previous" = "#e31a1c"))  # Red
+
 ```
 
 
@@ -515,25 +477,42 @@ chi_squared_result <- chisq.test(contingency_table)
 print(chi_squared_result)
 
 
-# Create the box plot
-ggplot(hiv_categorized, aes(x = factor(drug_use_status), y = AGG_MENT, color = factor(drug_use_status))) +
-  geom_boxplot() +
-  stat_summary(fun = mean, geom = "point", shape = 3, size = 3, color = "black") +  # Adds mean points
-  labs(
-    title = "Box Plot of AGG_MENT Based on Drug Usage Groups",
-    x = "Drug Usage Group",
-    y = "AGG_MENT",
-    color = "Drug Usage Group"
-  ) +
-  theme_minimal() +
-  scale_color_manual(values = c("Current" = "#1f78b4",   # Blue
-                                  "Never" = "#33a02c",    # Green
-                                  "Previous" = "#e31a1c"))  # Red
+
+```
+
+
+```{r}
+
+#calculate change variables for physical, mental, VLOAD, and LEU3N
+
+
+
+hiv_ltd_delta <- HIV_limited %>%
+  mutate(
+    LEU3N_delta = LEU3N_2 - LEU3N_0,
+    VLOAD_delta = VLOAD_2 - VLOAD_0,
+    AGG_MENT_delta = AGG_MENT_2 - AGG_MENT_0,
+    AGG_PHYS_delta = AGG_PHYS_2 - AGG_PHYS_0
+  )
+
+
+
+
+
+
+
 ```
 
 
 
+
+
 ```{r}
+
+
+#Below are is a function for calcuation of change variables on the longitudinal dataset: most likely will not analyze this data frame due to lack of imputation on never group 
+
+
 
 
 
@@ -703,24 +682,25 @@ print(correlation_matrix)
 #simple linear regression models. rework to set never as the reference group
 #unique(hiv_deltas$drug_use_status) 
 
-lm_LEU3N <- lm(delta_LEU3N ~ drug_use_status, data = hiv_deltas)
-summary(lm_result)
+# Linear model for T-Cell Count
+lm_LEU3N <- lm(LEU3N_delta ~ drug_use_currently + drug_use_previously, data = hiv_ltd_delta)
+summary(lm_LEU3N)
+confint(lm_LEU3N, level = 0.95)
 
-#slr for viral load 
-
-lm_vload <- lm(delta_VLOAD ~ drug_use_status, data= hiv_deltas)
+# SLR for log-transformed Viral Load
+lm_vload <- lm(log(VLOAD_delta + 1) ~ drug_use_currently + drug_use_previously, data = hiv_ltd_delta)
 summary(lm_vload)
+confint(lm_vload, level = 0.95)  # Use the correct model for confidence intervals
 
-#need to include confidence intervals
-
-
-#SLR for physical health
-
-lm_phys <-lm(delta_phys ~ drug_use_status, data=hiv_deltas)
+# SLR for aggregated physical health
+lm_phys <- lm(AGG_PHYS_delta ~ drug_use_currently + drug_use_previously, data = hiv_ltd_delta)
 summary(lm_phys)
+confint(lm_phys)
 
-lm_mental <- lm(delta_ment ~ drug_use_status, data = hiv_deltas)
+# SLR for aggregated mental health
+lm_mental <- lm(AGG_MENT_delta ~ drug_use_currently + drug_use_previously, data = hiv_ltd_delta)
 summary(lm_mental)
+confint(lm_mental)
 ```
 
 ```{r}
@@ -785,6 +765,70 @@ ggplot(data = NULL, aes(x = ment_fitted, y = ment_resid)) +
        x = "Fitted Values",
        y = "Residuals") +
   theme_minimal()
+
+```
+Check Normality
+```{r}
+
+# Histogram of original VLOAD_delta
+ggplot(hiv_ltd_delta, aes(x = VLOAD_delta)) +
+  geom_histogram(bins = 30, fill = "blue", color = "white") +
+  labs(title = "Histogram of Original Viral Load Data",
+       x = "Viral Load",
+       y = "Frequency") +
+  theme_minimal()
+
+#original data points are skewed, justifies log-transform
+
+# Histogram of LEU3N
+ggplot(hiv_ltd_delta, aes(x = LEU3N_delta)) +
+  geom_histogram(bins = 30, fill = "blue", color = "white") +
+  labs(title = "Histogram of T-cell Change Data Points",
+       x = "T-Cell Count",
+       y = "Frequency") +
+  theme_minimal()
+
+# Histogram of Agg_Phys
+ggplot(hiv_ltd_delta, aes(x = AGG_PHYS_delta)) +
+  geom_histogram(bins = 30, fill = "blue", color = "white") +
+  labs(title = "Histogram of Aggregated Physical Health Distribution",
+       x = "Physical Health Change",
+       y = "Frequency") +
+  theme_minimal()
+
+#Histogram of Agg_ment
+
+ggplot(hiv_ltd_delta, aes(x = AGG_MENT_delta)) +
+  geom_histogram(bins = 30, fill = "blue", color = "white") +
+  labs(title = "Histogram of Aggregated Mental Health Distribution",
+       x = "Mental Health",
+       y = "Frequency") +
+  theme_minimal()
+
+
+
+```
+
+```{r}
+#qq Plots
+
+# Q-Q Plot for T-Cell Count
+qqnorm(lm_LEU3N$residuals, main = "Q-Q Plot of Residuals for T-Cell Count")
+qqline(lm_LEU3N$residuals, col = "red")
+
+# Q-Q Plot for log-transformed Viral Load
+qqnorm(lm_vload$residuals, main = "Q-Q Plot of Residuals for Viral Load")
+qqline(lm_vload$residuals, col = "red")
+
+# Q-Q Plot for Aggregated Physical Health
+qqnorm(lm_phys$residuals, main = "Q-Q Plot of Residuals for Aggregated Physical Health")
+qqline(lm_phys$residuals, col = "red")
+
+# Q-Q Plot for Aggregated Mental Health
+qqnorm(lm_mental$residuals, main = "Q-Q Plot of Residuals for Aggregated Mental Health")
+qqline(lm_mental$residuals, col = "red")
+
+
 
 ```
 

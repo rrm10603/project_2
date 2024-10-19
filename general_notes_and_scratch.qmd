@@ -25,6 +25,20 @@ You can add options to executable code like this
 
 The `echo: false` option disables the printing of code (only output is displayed).
 
+10/19: running chi-square tests on wide format?
+
+why was dataset filtered for observations where drug_use_status == "Never"
+
+-can labels be added from jessica's summarise function in table 1 creation?
+
+-imputed so it wouldnt delete
+
+-missing not at random: not everyone in the never group is missing MNAR in a way that would introduce bias, dont know the cause of
+
+#fit model with interaction term
+
+\*double check viral load
+
 \*\*mainly missing data and outliers
 
 #poorly designed study if you dont address missing data first
