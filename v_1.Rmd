@@ -223,6 +223,7 @@ Important finding that outcome variables are only missing for those in the never
 
 
 ```{r}
+#visualize data that is missing jst in the never group to look for further patterns
 data_never <- wide_hiv_categorized %>%
   filter(drug_use_status == "Never")
 
@@ -232,7 +233,7 @@ vis_miss(data_never)
 ```
 
 ```{r}
-
+#visualize similarities between missingness
 missing_data <- wide_hiv_categorized %>%
   filter(is.na(VLOAD_2))
 
@@ -287,6 +288,7 @@ hist(data_current$log_vload2, breaks = 20, main = "Histogram of Numeric Variable
 ```
  
 ```{r}
+#/impute data using knn try 1 
 imputed_data <- kNN(wide_hiv_categorized, variable = "VLOAD_2")
 imputed_data1 <- kNN(imputed_data, variable = "VLOAD_0")
 imputed_data2 <- kNN(imputed_data1, variable = "LEU3N_0")
@@ -298,20 +300,24 @@ HIV_imputed <- kNN(imputed_data6, variable = "AGG_MENT_2")
 print(HIV_imputed)
 ```
 ```{r}
+#impute data using knn try 2 (this one is better)
 HIV_imputed1 <- kNN(wide_hiv_categorized)
 print(HIV_imputed1)
 ```
 ```{r}
+#choose certain variables so dataset is less overwhelming 
 HIV_limited <- HIV_imputed1 %>%
   select(newid,RACE,EDUCBAS,drug_use_status,drug_use_currently,drug_use_previously,drug_use_never, AGG_MENT_0,AGG_MENT_2,AGG_PHYS_0, AGG_PHYS_2, HASHV_2, HASHF_2, income_2,  BMI_2, HBP_2, DIAB_2, LIV34_2, KID_2, FRP_2,FP_2, TCHOL_2,TRIG_2,LDL_2, DYSLIP_2, CESD_2, SMOKE_2, DKGRP_2, HEROPIATE_2, IDU_2, LEU3N_0,LEU3N_2, VLOAD_0, VLOAD_2, ADH_0, ADH_2, age_2, ART_2, everART_0)
 print(HIV_limited)
 ```
 ```{r}
+#Convert numeric categorical variables to character so you can get dummies 
 HIV_limited[, c("RACE","EDUCBAS","HASHF_2", "income_2","HBP_2","DIAB_2","LIV34_2","KID_2", "FRP_2","FP_2","DYSLIP_2","SMOKE_2","DKGRP_2","ADH_0","ADH_2")] <- lapply(HIV_limited[,c("RACE","EDUCBAS","HASHF_2", "income_2","HBP_2","DIAB_2","LIV34_2","KID_2", "FRP_2","FP_2","DYSLIP_2","SMOKE_2","DKGRP_2","ADH_0","ADH_2")],as.character)
 str(HIV_limited)
 ```
 
 ```{r}
+#Get dummy variables
 category_vars <- c("RACE","EDUCBAS","HASHF_2", "income_2","HBP_2","DIAB_2","LIV34_2","KID_2", "FRP_2","FP_2","DYSLIP_2","SMOKE_2","DKGRP_2","ADH_0","ADH_2")
 for (var in category_vars) {
   HIV_limited <- dummy_cols(HIV_limited, select_columns = var, remove_first_dummy = TRUE)
@@ -526,49 +532,6 @@ ggplot(hiv_categorized, aes(x = factor(drug_use_status), y = AGG_MENT, color = f
 ```
 
 
-```{r}
-# Check for variables with missing values
-missing_vars <- colnames(hiv_categorized)[colSums(is.na(hiv_categorized)) > 0]
-
-# Loop through the variables with missing values and compare means with respect to missingness
-for (var in missing_vars) {
-  # Ensure the variable is numeric before running t.test
-  if (is.numeric(hiv_categorized[[var]])) {
-    cat("Variable:", var, "\n")
-    test_result <- t.test(hiv_categorized[[var]] ~ is.na(hiv_categorized[[var]]))
-    print(test_result)
-    cat("\n")
-  } else {
-    cat("Variable:", var, "is not numeric. Skipping...\n\n")
-  }
-}
-
-```
-```{r}
-# Create a data frame to hold the missingness indicators
-missingness_data <- hiv_categorized %>%
-  summarise(across(everything(), ~ as.numeric(is.na(.)), .names = "{.col}_missing"))  # Create missingness indicators
-
-# Combine the original data and missingness indicators
-combined_data <- bind_cols(hiv_categorized, missingness_data)
-
-# Calculate correlation coefficients between original variables and their missingness indicators
-correlation_results <- sapply(names(hiv_categorized), function(var) {
-  if (is.numeric(combined_data[[var]])) {
-    cor(combined_data[[var]], combined_data[[paste0(var, "_missing")]], use = "complete.obs")
-  } else {
-    NA  # Non-numeric variables will return NA
-  }
-})
-
-# Create a data frame to display the results
-correlation_df <- data.frame(Variable = names(hiv_categorized), Correlation = correlation_results)
-
-# Print the correlation results
-print(correlation_df)
-
-```
-
 
 ```{r}
 
@@ -735,10 +698,6 @@ print(correlation_matrix)
 ```
 
 
-
-
-
-
 ```{r}
 
 #simple linear regression models. rework to set never as the reference group
@@ -882,6 +841,10 @@ summary(test_model)
 summary(test_model_i)
 
 ```
+
+
+
+
 
 
 
