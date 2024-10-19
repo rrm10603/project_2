@@ -48,13 +48,13 @@ library(fastDummies)
 library(vcd)
 
 #linux pathway
-hiv<- read_csv("/home/robmcneil/Documents/advanced_data/hiv_dataset.csv")
+#hiv<- read_csv("/home/robmcneil/Documents/advanced_data/hiv_dataset.csv")
 
 #windows pathway
 #hiv<- read_csv("C:/Users/rrm10/OneDrive/Desktop/advanced data analysis/hiv_dataset.csv")
 
 # Jessicas read in data
-#hiv<- read_csv("~/Downloads/hiv_dataset.csv")
+hiv<- read_csv("~/Downloads/hiv_dataset.csv")
 
 #check data types
 str(hiv)
@@ -88,6 +88,7 @@ print(hiv_categorized)
 
 ```
 
+
 ```{r}
 #Get dummy variables for drug use status
 
@@ -103,108 +104,304 @@ print(hiv_categorized)
 
 
 ```{r}
+#Turn dataswt from long to wide for missing data evaluation, so we only have one observation per subject
 
-# Get summary of missing values in each variable
-naniar::miss_var_summary(hiv_categorized)
+wide_hiv_categorized <-hiv_categorized %>%
+  pivot_wider(
+    id_cols = c(newid, RACE, EDUCBAS, hivpos, drug_use_status, drug_use_currently, drug_use_previously, drug_use_never),
+    names_from = years,
+    values_from = c(AGG_MENT, AGG_PHYS, HASHV, HASHF, income, BMI, HBP, DIAB,LIV34,KID,FRP,FP, TCHOL,TRIG,
+                    LDL,DYSLIP,CESD,SMOKE,DKGRP,HEROPIATE,IDU,LEU3N,VLOAD,ADH,age, ART, everART, 
+                    hard_drugs)
+  )
 
-# Visualize missing data as a heatmap
-naniar::gg_miss_var(hiv_categorized) # missing values by variable
-naniar::gg_miss_upset(hiv_categorized) # visualize combinations of missing values
-
-
-md.pattern(hiv_categorized)
-
+print(wide_hiv_categorized)
 
 ```
 
 ```{r}
+# Visualize what variables are missing data and how much is missing  
+aggr(wide_hiv_categorized, col=c('navyblue','red'), numbers=TRUE, sortVars=TRUE, labels=names(wide_hiv_categorized), cex.axis=0.7, gap=3, ylab=c("Missing data","Pattern"))
 
-# Assuming your dataset is named 'your_data' and has 'id' and 'year' columns
-# Step 1: Count the number of observations per patient
-patient_observation_counts <- hiv_categorized %>%
-  group_by(newid) %>%
-  summarise(n_observations = n())
+vis_miss(wide_hiv_categorized)
+```
+```{r}
+#See what percent of data is missing for non-outcome variables by drug use status
+wide_hiv_categorized$TRIG_1_missing <- ifelse(is.na(wide_hiv_categorized$TRIG_1), 1, 0)
+wide_hiv_categorized$LDL_1_missing <- ifelse(is.na(wide_hiv_categorized$LDL_1),1,0)
+wide_hiv_categorized$TRIG_0_missing <- ifelse(is.na(wide_hiv_categorized$TRIG_0), 1, 0)
+wide_hiv_categorized$LDL_2_missing <- ifelse(is.na(wide_hiv_categorized$LDL_2), 1, 0)
+wide_hiv_categorized$LDL_0_missing <- ifelse(is.na(wide_hiv_categorized$LDL_0), 1, 0)
+wide_hiv_categorized$TRIG_2_missing <- ifelse(is.na(wide_hiv_categorized$TRIG_2), 1, 0)
+wide_hiv_categorized$TCHOL_1_missing <- ifelse(is.na(wide_hiv_categorized$TCHOL_1), 1, 0)
+wide_hiv_categorized$TCHOL_0_missing <- ifelse(is.na(wide_hiv_categorized$TCHOL_0), 1, 0)
+wide_hiv_categorized$TCHOL_2_missing <- ifelse(is.na(wide_hiv_categorized$TCHOL_2), 1, 0)
+wide_hiv_categorized$income_2_missing <- ifelse(is.na(wide_hiv_categorized$income_2), 1, 0)
+wide_hiv_categorized$income_0_missing <- ifelse(is.na(wide_hiv_categorized$income_0), 1, 0)
+wide_hiv_categorized$income_1_missing <- ifelse(is.na(wide_hiv_categorized$income_1), 1, 0)
+wide_hiv_categorized$BMI_2_missing <- ifelse(is.na(wide_hiv_categorized$BMI_2), 1, 0)
+wide_hiv_categorized$BMI_1_missing <- ifelse(is.na(wide_hiv_categorized$BMI_1), 1, 0)
+wide_hiv_categorized$HASHF_0_missing <- ifelse(is.na(wide_hiv_categorized$HASHF_0), 1, 0)
+wide_hiv_categorized$VLOAD_1_missing <- ifelse(is.na(wide_hiv_categorized$VLOAD_1), 1, 0)
+wide_hiv_categorized$LEU3N_1_missing <- ifelse(is.na(wide_hiv_categorized$LEU3N_1), 1, 0)
+wide_hiv_categorized$HASHV_2_missing <- ifelse(is.na(wide_hiv_categorized$HASHV_2), 1, 0)
+wide_hiv_categorized$HASHV_1_missing <- ifelse(is.na(wide_hiv_categorized$HASHV_1), 1, 0)
+wide_hiv_categorized$BMI_0_missing <- ifelse(is.na(wide_hiv_categorized$BMI_0), 1, 0)
+wide_hiv_categorized$HASHF_1_missing <- ifelse(is.na(wide_hiv_categorized$HASHF_1), 1, 0)
+wide_hiv_categorized$DKGRP_1_missing <- ifelse(is.na(wide_hiv_categorized$DKGRP_1), 1, 0)
+wide_hiv_categorized$DKGRP_2_missing <- ifelse(is.na(wide_hiv_categorized$DKGRP_2), 1, 0)
+wide_hiv_categorized$HEROPIATE_0_missing <- ifelse(is.na(wide_hiv_categorized$HEROPIATE_0), 1, 0)
+wide_hiv_categorized$HEROPIATE_1_missing <- ifelse(is.na(wide_hiv_categorized$HEROPIATE_1), 1, 0)
+wide_hiv_categorized$AGG_MENT_1_missing <- ifelse(is.na(wide_hiv_categorized$AGG_MENT_1), 1, 0)
+wide_hiv_categorized$AGG_PHYS_1_missing <- ifelse(is.na(wide_hiv_categorized$AGG_PHYS_1), 1, 0)
 
-# Step 2: Find patients with fewer than 3 or more than 3 observations
-patients_missing_obs <- patient_observation_counts %>%
-  filter(n_observations != 3)
 
-# Display patients with missing follow-ups
-patients_missing_obs
+missing_demogrphic_by_drug_use_status <- wide_hiv_categorized %>%
+  group_by(drug_use_status) %>%
+  summarize(
+    percent_missing_TRIG_1 = mean(TRIG_1_missing) * 100,
+    percent_missing_LDL_1 = mean (LDL_1_missing) * 100,
+    percent_missing_TRIG_0 = mean (TRIG_0_missing) *100,
+    percent_missing_LDL_2 = mean (LDL_2_missing) *100,
+    percent_missing_LDL_0 = mean (LDL_0_missing) *100,
+    percent_missing_TRIG_2 = mean (TRIG_2_missing) *100,
+    percent_missing_TCHOL_1 = mean (TCHOL_1_missing) *100,
+    percent_missing_TCHOL_0 = mean(TCHOL_0_missing) * 100,
+    percent_missing_TCHOL_2 = mean (TCHOL_2_missing) * 100,
+    percent_missing_income_2 = mean (income_2_missing) *100,
+    percent_missing_income_0 = mean (income_0_missing) *100,
+    percent_missing_income_1 = mean (income_1_missing) *100,
+    percent_missing_BMI_2 = mean (BMI_2_missing) *100,
+    percent_missing_BMI_1 = mean (BMI_1_missing) *100,
+    percent_missing_HASHF_0 = mean (HASHF_0_missing) *100,
+    percent_missing_VLOAD_1 = mean(VLOAD_1_missing) * 100,
+    percent_missing_LEU3N_1 = mean (LEU3N_1_missing) * 100,
+    percent_missing_HASHV_2 = mean (HASHV_2_missing) *100,
+    percent_missing_HASHV_1 = mean (HASHV_1_missing) *100,
+    percent_missing_BMI_0 = mean (BMI_0_missing) *100,
+    percent_missing_HASHF_1 = mean (HASHF_1_missing) *100,
+    percent_missing_DKGRP_1 = mean (DKGRP_1_missing) *100,
+    percent_missing_DKGRP_2 = mean (DKGRP_2_missing) *100,
+    percent_missing_HEROPIATE_0 = mean (HEROPIATE_0_missing) *100,
+    percent_missing_HEROPIATE_1 = mean (HEROPIATE_1_missing) *100,
+    percent_missing_AGG_MENT_1 = mean (AGG_MENT_1_missing) *100,
+    percent_missing_AGG_PHYS_1 = mean (AGG_PHYS_1_missing) *100,
+  )
 
-#all patients at least have all three years recorded even if they are missing certain variables so that is good 
+print(missing_demogrphic_by_drug_use_status)
+```
 
+```{r}
+#see what percent of of each outcome variable is missing by drug use status group
+wide_hiv_categorized$VLOAD_0_missing <- ifelse(is.na(wide_hiv_categorized$VLOAD_0), 1, 0)
+wide_hiv_categorized$VLOAD_2_missing <- ifelse(is.na(wide_hiv_categorized$VLOAD_2),1,0)
+wide_hiv_categorized$LEU3N_0_missing <- ifelse(is.na(wide_hiv_categorized$LEU3N_0), 1, 0)
+wide_hiv_categorized$LEU3N_2_missing <- ifelse(is.na(wide_hiv_categorized$LEU3N_2), 1, 0)
+wide_hiv_categorized$AGG_MENT_0_missing <- ifelse(is.na(wide_hiv_categorized$AGG_MENT_0), 1, 0)
+wide_hiv_categorized$AGG_MENT_2_missing <- ifelse(is.na(wide_hiv_categorized$AGG_MENT_2), 1, 0)
+wide_hiv_categorized$AGG_PHYS_0_missing <- ifelse(is.na(wide_hiv_categorized$AGG_PHYS_0), 1, 0)
+wide_hiv_categorized$AGG_PHYS_2_missing <- ifelse(is.na(wide_hiv_categorized$AGG_PHYS_2), 1, 0)
+wide_hiv_categorized$ADH_2_missing <- ifelse(is.na(wide_hiv_categorized$ADH_2), 1, 0)
+  
+missing_percent_by_drug_use_status <- wide_hiv_categorized %>%
+  group_by(drug_use_status) %>%
+  summarize(
+    percent_missing_VLOAD_0 = mean(VLOAD_0_missing) * 100,
+    percent_missing_VLOAD_2 = mean (VLOAD_2_missing) * 100,
+    percent_missing_LEU3N_0 = mean (LEU3N_0_missing) *100,
+    percent_missing_LEU3N_2 = mean (LEU3N_2_missing) *100,
+    percent_missing_AGG_MENT_0 = mean (AGG_MENT_0_missing) *100,
+    percent_missing_AGG_MENT_2 = mean (AGG_MENT_2_missing) *100,
+    percent_missing_ADH_2 = mean (ADH_2_missing) *100,
+    percent_missing_AGG_PHYS_0 = mean (AGG_PHYS_0_missing) *100,
+    percent_missing_AGG_PHYS_2 = mean (AGG_PHYS_2_missing) *100,
+  )
+
+print(missing_percent_by_drug_use_status)
+```
+Important finding that outcome variables are only missing for those in the never treatment group, data is missing at random 
+
+
+```{r}
+data_never <- wide_hiv_categorized %>%
+  filter(drug_use_status == "Never")
+
+aggr(data_never, col=c('navyblue','red'), numbers=TRUE, sortVars=TRUE, labels=names(data_never), cex.axis=0.7, gap=3, ylab=c("Missing data","Pattern"))
+
+vis_miss(data_never)
+```
+
+```{r}
+
+missing_data <- wide_hiv_categorized %>%
+  filter(is.na(VLOAD_2))
+
+print(missing_data)
+
+gg_miss_upset(missing_data)
 ```
 
 
 ```{r}
-aggr(hiv_categorized, col = c('navyblue','yellow'), numbers = TRUE, sortVars = TRUE)
-
-# Using naniar to visualize missing data
-gg_miss_var(hiv_categorized)
-```
-
-```{r}
-# NOt WORKING BECAUSE THEY WERE PUT INTO NUMBERS FIX LATER 
-hiv_dummy <- dummy_cols(hiv_categorized, select_columns = "RACE", remove_first_dummy = TRUE)
-hiv_dummy <- dummy_cols(hiv_dummy, select_columns = "EDUCBAS", remove_first_dummy = TRUE)
-hiv_dummy <- dummy_cols(hiv_dummy, select_columns = "income", remove_first_dummy = TRUE)
-hiv_dummy <- dummy_cols(hiv_dummy, select_columns = "SMOKE", remove_first_dummy = TRUE)
-hiv_dummy <- dummy_cols(hiv_dummy, select_columns = "DKGRP", remove_first_dummy = TRUE)
-hiv_dummy <- dummy_cols(hiv_dummy, select_columns = "HEROPIATE", remove_first_dummy = TRUE)
-#hiv_dummy <- dummy_cols(hiv_dummy, select_columns = "SYPHA", remove_first_dummy = TRUE)
-#hiv_dummy <- dummy_cols(hiv_dummy, select_columns = "HERLV", remove_first_dummy = TRUE)
-#hiv_dummy <- dummy_cols(hiv_dummy, select_columns = "GONOR", remove_first_dummy = TRUE)
-hiv_dummy <- dummy_cols(hiv_dummy, select_columns = "HASHF", remove_first_dummy = TRUE)
-#hiv_dummy <- dummy_cols(hiv_dummy, select_columns = "HLTPFR", remove_first_dummy = TRUE)
-#hiv_dummy <- dummy_cols(hiv_dummy, select_columns = "PAINR", remove_first_dummy = TRUE)
-#hiv_dummy <- dummy_cols(hiv_dummy, select_columns = "GNHLHR", remove_first_dummy = TRUE)
-#hiv_dummy <- dummy_cols(hiv_dummy, select_columns = "EMTWBR", remove_first_dummy = TRUE)
-#hiv_dummy <- dummy_cols(hiv_dummy, select_columns = "ENFATR", remove_first_dummy = TRUE)
-#hiv_dummy <- dummy_cols(hiv_dummy, select_columns = "SOCFCR", remove_first_dummy = TRUE)
-hiv_dummy <- dummy_cols(hiv_dummy, select_columns = "KID", remove_first_dummy = TRUE)
-hiv_dummy <- dummy_cols(hiv_dummy, select_columns = "LIV34", remove_first_dummy = TRUE)
-hiv_dummy <- dummy_cols(hiv_dummy, select_columns = "FRP", remove_first_dummy = TRUE)
-hiv_dummy <- dummy_cols(hiv_dummy, select_columns = "FP", remove_first_dummy = TRUE)
-hiv_dummy <- dummy_cols(hiv_dummy, select_columns = "HBP", remove_first_dummy = TRUE)
-hiv_dummy <- dummy_cols(hiv_dummy, select_columns = "DYSLIP", remove_first_dummy = TRUE)
-hiv_dummy <- dummy_cols(hiv_dummy, select_columns = "DIAB", remove_first_dummy = TRUE)
-#hiv_dummy <- dummy_cols(hiv_dummy, select_columns = "HCSTV", remove_first_dummy = TRUE)
-#hiv_dummy <- dummy_cols(hiv_dummy, select_columns = "HBSTV", remove_first_dummy = TRUE)
-print(hiv_dummy)
-```
-```{r}
-#chi squared for drug status and ADH
-contingency_table <- table(hiv_categorized$drug_use_status, hiv_categorized$ADH)
-
-# Print the contingency table
-print(contingency_table)
-
-# Run the Chi-squared test
-chi_squared_result <- chisq.test(contingency_table)
-
-# Print the results
-print(chi_squared_result)
 
 
+# Filter the dataset for observations where drug_use_status == "Never"
 
-#results suggest that there is a significant relationship between the drug use status of individuals and their categorization in ADH. distribution of ADH categories varies based on whether individuals are current, never, or previous drug users. further explore to understand relationship—s how each category of drug_use_status corresponds to the different ADH categories
+data_previous <- wide_hiv_categorized %>%
+  filter(drug_use_status == "Previous")
+data_current <- wide_hiv_categorized %>%
+  filter(drug_use_status == "Current")
 
-#create bar plot visualize the distribution of ADH categories for each level of drug_use_status
-ggplot(hiv_categorized, aes(x = ADH, fill = drug_use_status)) +
-    geom_bar(position = "dodge") +
-    labs(title = "ADH Categories by Drug Use Status",
-         x = "ADH Category", 
-         y = "Count") +
+data_never$log_vload2 <- log(data_never$VLOAD_2 +1)
+data_never$log_vload0 <- log(data_never$VLOAD_0 +1)
+data_previous$log_vload0 <- log(data_previous$VLOAD_0 +1)
+data_previous$log_vload2 <- log(data_previous$VLOAD_2 +1)
+data_current$log_vload0 <- log(data_current$VLOAD_0 +1)
+data_current$log_vload2 <- log(data_current$VLOAD_2 +1)
+# Loop through the numeric columns and create histograms
+numeric_vars <- names(data_never)[sapply(data_never, is.numeric)]
+
+vars <- c("VLOAD_0","VLOAD_1","VLOAD_2" )
+for (var in vars) {
+  # Create the histogram
+  p <- ggplot(data_never, aes_string(x = var), breaks=10) +
+    geom_histogram(breaks = 10, fill = "skyblue", color = "black") +
+    labs(title = paste("Histogram of", var, "for Never Drug Use Status")) +
     theme_minimal()
+  
+  # Print each plot
+  print(p)
 
-#create mosiac plot of drug use status and ADH
-mosaic(~ drug_use_status + ADH, data = hiv_categorized, 
-       main = "Mosaic Plot of Drug Use Status and ADH")
+}
+hist(data_never$log_vload0, breaks = 20, main = "Histogram of Numeric Variable", xlab = "Values", ylab = "Frequency")
 
+hist(data_never$log_vload2, breaks = 20, main = "Histogram of Numeric Variable", xlab = "Values", ylab = "Frequency")
 
+hist(data_previous$log_vload0, breaks = 20, main = "Histogram of Numeric Variable", xlab = "Values", ylab = "Frequency")
+
+hist(data_previous$log_vload2, breaks = 20, main = "Histogram of Numeric Variable", xlab = "Values", ylab = "Frequency")
+
+hist(data_current$log_vload0, breaks = 20, main = "Histogram of Numeric Variable", xlab = "Values", ylab = "Frequency")
+
+hist(data_current$log_vload2, breaks = 20, main = "Histogram of Numeric Variable", xlab = "Values", ylab = "Frequency")
+```
+ 
+```{r}
+imputed_data <- kNN(wide_hiv_categorized, variable = "VLOAD_2")
+imputed_data1 <- kNN(imputed_data, variable = "VLOAD_0")
+imputed_data2 <- kNN(imputed_data1, variable = "LEU3N_0")
+imputed_data3 <- kNN(imputed_data2, variable = "LEU3N_2")
+imputed_data4 <- kNN(imputed_data3, variable = "AGG_PHYS_0")
+imputed_data5 <- kNN(imputed_data4, variable = "AGG_PHYS_2")
+imputed_data6 <- kNN(imputed_data5, variable = "AGG_MENT_0")
+HIV_imputed <- kNN(imputed_data6, variable = "AGG_MENT_2")
+print(HIV_imputed)
+```
+```{r}
+HIV_imputed1 <- kNN(wide_hiv_categorized)
+print(HIV_imputed1)
+```
+```{r}
+HIV_limited <- HIV_imputed1 %>%
+  select(newid,RACE,EDUCBAS,drug_use_status,drug_use_currently,drug_use_previously,drug_use_never, AGG_MENT_0,AGG_MENT_2,AGG_PHYS_0, AGG_PHYS_2, HASHV_2, HASHF_2, income_2,  BMI_2, HBP_2, DIAB_2, LIV34_2, KID_2, FRP_2,FP_2, TCHOL_2,TRIG_2,LDL_2, DYSLIP_2, CESD_2, SMOKE_2, DKGRP_2, HEROPIATE_2, IDU_2, LEU3N_0,LEU3N_2, VLOAD_0, VLOAD_2, ADH_0, ADH_2, age_2, ART_2, everART_0)
+print(HIV_limited)
+```
+```{r}
+HIV_limited[, c("RACE","EDUCBAS","HASHF_2", "income_2","HBP_2","DIAB_2","LIV34_2","KID_2", "FRP_2","FP_2","DYSLIP_2","SMOKE_2","DKGRP_2","ADH_0","ADH_2")] <- lapply(HIV_limited[,c("RACE","EDUCBAS","HASHF_2", "income_2","HBP_2","DIAB_2","LIV34_2","KID_2", "FRP_2","FP_2","DYSLIP_2","SMOKE_2","DKGRP_2","ADH_0","ADH_2")],as.character)
+str(HIV_limited)
+```
+
+```{r}
+category_vars <- c("RACE","EDUCBAS","HASHF_2", "income_2","HBP_2","DIAB_2","LIV34_2","KID_2", "FRP_2","FP_2","DYSLIP_2","SMOKE_2","DKGRP_2","ADH_0","ADH_2")
+for (var in category_vars) {
+  HIV_limited <- dummy_cols(HIV_limited, select_columns = var, remove_first_dummy = TRUE)
+}
+print(HIV_limited)
+```
+
+```{r}
+
+#code for table 1 
+demographic_summary <-  HIV_limited %>% 
+  group_by(drug_use_status) %>%
+  summarise(
+    `White, non-Hispanic (%)` = as.character(round(sum(RACE == 1, na.rm = TRUE) / n() * 100, 2)),
+    `White, Hispanic (%)` = as.character(round(sum(RACE == 2, na.rm = TRUE) / n() * 100, 2)),
+    `Black, non-Hispanic (%)` = as.character(round(sum(RACE == 3, na.rm = TRUE) / n() * 100, 2)),
+    `Black, Hispanic (%)` = as.character(round(sum(RACE == 4, na.rm = TRUE) / n() * 100, 2)),
+    `American Indian or Alaskan Native (%)` = as.character(round(sum(RACE == 5, na.rm = TRUE) / n() * 100, 2)),
+    `Asian or Pacific Islander (%)` = as.character(round(sum(RACE == 6, na.rm = TRUE) / n() * 100, 2)),
+    `Other (%)` = as.character(round(sum(RACE == 7, na.rm = TRUE) / n() * 100, 2)),
+    `Other Hispanic (%)` = as.character(round(sum(RACE == 8, na.rm = TRUE) / n() * 100, 2)),
+    `Education Level at Baseline: 8th grade or less (%)` = as.character(round(sum(EDUCBAS == 1, na.rm = TRUE) / n() * 100, 2)),
+    `Education Level at Baseline: 9, 10, or 11th grade (%)` = as.character(round(sum(EDUCBAS == 2, na.rm = TRUE) / n() * 100, 2)),
+    `Education Level at Baseline: 12th grade (%)` = as.character(round(sum(EDUCBAS == 3, na.rm = TRUE) / n() * 100, 2)),
+    `Education Level at Baseline: At least 1 year of college - no degree (%)` = as.character(round(sum(EDUCBAS == 4, na.rm = TRUE) / n() * 100, 2)),
+    `Education Level at Baseline: 4 years college / got degree (%)` = as.character(round(sum(EDUCBAS == 5, na.rm = TRUE) / n() * 100, 2)),
+    `Education Level at Baseline: Some graduate work (%)` = as.character(round(sum(EDUCBAS == 6, na.rm = TRUE) / n() * 100, 2)),
+    `Education Level at Baseline: post graduate degree (%)` = as.character(round(sum(EDUCBAS == 7, na.rm = TRUE) / n() * 100, 2)),
+    `Individual gross income (year2): Less than $10,000 (%)` = as.character(round(sum(income_2 == 1, na.rm = TRUE) / n() * 100, 2)),
+    `Individual gross income (year2): $10,000-$19,999 (%)` = as.character(round(sum(income_2 == 2, na.rm = TRUE) / n() * 100, 2)),
+    `Individual gross income (year2): $20,000-29,999 (%)` = as.character(round(sum(income_2 == 3, na.rm = TRUE) / n() * 100, 2)),
+    `Individual gross income (year2): $30,000-$39,999 (%)` = as.character(round(sum(income_2 == 4, na.rm = TRUE) / n() * 100, 2)),
+    `Individual gross income (year2): $40,000-$49,999 (%)` = as.character(round(sum(income_2 == 5, na.rm = TRUE) / n() * 100, 2)),
+    `Individual gross income (year2): $50,000-$59,999 (%)` = as.character(round(sum(income_2 == 6, na.rm = TRUE) / n() * 100, 2)),
+    `Individual gross income (year2): $60,000 or more (%)` = as.character(round(sum(income_2 == 7, na.rm = TRUE) / n() * 100, 2)),
+    `High Blood Pressure (year2): No (%)` = as.character(round(sum(HBP_2 == 1, na.rm = TRUE) / n() * 100, 2)),
+    `High Blood Pressure (year2): Yes (%)` = as.character(round(sum(HBP_2 == 2, na.rm = TRUE) / n() * 100, 2)),
+    `High Blood Pressure (year2): No, from data trajectory  (%)` = as.character(round(sum(HBP_2 == 3, na.rm = TRUE) / n() * 100, 2)),
+    `High Blood Pressure (year2): Yes, from data trajectory  (%)` = as.character(round(sum(HBP_2 == 4, na.rm = TRUE) / n() * 100, 2)),
+    `Diabetes (year2): No (%)` = as.character(round(sum(DIAB_2 == 1, na.rm = TRUE) / n() * 100, 2)),
+    `Diabetes (year2): Yes (%)` = as.character(round(sum(DIAB_2 == 2, na.rm = TRUE) / n() * 100, 2)),
+    `Diabetes (year2): No, from data trajectory  (%)` = as.character(round(sum(DIAB_2 == 3, na.rm = TRUE) / n() * 100, 2)),
+    `Diabetes (year2): Yes, from data trajectory  (%)` = as.character(round(sum(DIAB_2 == 4, na.rm = TRUE) / n() * 100, 2)),
+    `Liver Disease Stage 3/4 (year 2): No (%)` = as.character(round(sum(LIV34_2 == 1, na.rm = TRUE) / n() * 100, 2)),
+    `Liver Disease Stage 3/4 (year 2) Yes (%)` = as.character(round(sum(LIV34_2 == 2, na.rm = TRUE) / n() * 100, 2)),
+    `Kidney Disease (year 2) No (%)` = as.character(round(sum(KID_2 == 1, na.rm = TRUE) / n() * 100, 2)),
+    `Kidney Disease (year 2) Yes (%)` = as.character(round(sum(KID_2 == 2, na.rm = TRUE) / n() * 100, 2)),
+    `Smoking Status (year 2) Never Smoker (%)` = as.character(round(sum(SMOKE_2 == 1, na.rm = TRUE) / n() * 100, 2)),
+    `Smoking Status (year 2) Former Smoker (%)` = as.character(round(sum(SMOKE_2 == 2, na.rm = TRUE) / n() * 100, 2)),
+    `Smoking Status (year 2) Current Smoker (%)` = as.character(round(sum(SMOKE_2 == 3, na.rm = TRUE) / n() * 100, 2)),
+    `Aggregated Mental Health - Baseline (Mean(SD))` = as.character(paste0(round(mean(AGG_MENT_0, na.rm = TRUE), 2), " (", round(sd(AGG_MENT_0, na.rm = TRUE), 2), ")")),
+    `Aggregated Mental Health - Year 2 (Mean(SD))` = as.character(paste0(round(mean(AGG_MENT_2, na.rm = TRUE), 2), " (", round(sd(AGG_MENT_2, na.rm = TRUE), 2), ")")),
+    `Aggregated Physical Health - Baseline (Mean(SD))` = as.character(paste0(round(mean(AGG_PHYS_0, na.rm = TRUE), 2), " (", round(sd(AGG_PHYS_0, na.rm = TRUE), 2), ")")),
+    `Aggregated Physical Health - Year 2 (Mean(SD))` = as.character(paste0(round(mean(AGG_PHYS_2, na.rm = TRUE), 2), " (", round(sd(AGG_PHYS_2, na.rm = TRUE), 2), ")")),
+    `BMI - Year 2 (Mean(SD))` = as.character(paste0(round(mean(BMI_2, na.rm = TRUE), 2), " (", round(sd(BMI_2, na.rm = TRUE), 2), ")")),   
+    `Total Cholesterol - Year 2 (Mean(SD))` = as.character(paste0(round(mean(TCHOL_2, na.rm = TRUE), 2), " (", round(sd(TCHOL_2, na.rm = TRUE), 2), ")")), 
+    `Triglycerides - Year 2 (Mean(SD))` = as.character(paste0(round(mean(TRIG_2, na.rm = TRUE), 2), " (", round(sd(TRIG_2, na.rm = TRUE), 2), ")")),
+    `Depression Scale - Year 2 (Mean(SD))` = as.character(paste0(round(mean(CESD_2, na.rm = TRUE), 2), " (", round(sd(CESD_2, na.rm = TRUE), 2), ")")),
+    `Number of CD4 Positive Cells - Year 0 (Mean(SD))` = as.character(paste0(round(mean(LEU3N_0, na.rm = TRUE), 2), " (", round(sd(LEU3N_0, na.rm = TRUE), 2), ")")),
+    `Number of CD4 Positive Cells - Year 2 (Mean(SD))` = as.character(paste0(round(mean(LEU3N_2, na.rm = TRUE), 2), " (", round(sd(LEU3N_2, na.rm = TRUE), 2), ")")),
+    `Standardized Viral Load - Year 0 (Mean(SD))` = as.character(paste0(round(mean(VLOAD_0, na.rm = TRUE), 2), " (", round(sd(VLOAD_0, na.rm = TRUE), 2), ")")),
+    `Standardized Viral Load - Year 2 (Mean(SD))` = as.character(paste0(round(mean(VLOAD_2, na.rm = TRUE), 2), " (", round(sd(VLOAD_2, na.rm = TRUE), 2), ")")),
+    `Adherence to Treatment - Year 2 - 100% (%)` = as.character(round(sum(ADH_2 == 1, na.rm = TRUE) / n() * 100, 2)),
+    `Adherence to Treatment - Year 2 - 95-99% (%)` = as.character(round(sum(ADH_2 == 2, na.rm = TRUE) / n() * 100, 2)),
+    `Adherence to Treatment - Year 2 - 75-94% (%)` = as.character(round(sum(ADH_2 == 3, na.rm = TRUE) / n() * 100, 2)),
+    `Adherence to Treatment - Year 2 - <75% (%)` = as.character(round(sum(ADH_2 == 4, na.rm = TRUE) / n() * 100, 2)),
+    `Age - Year 2 (Mean(SD))` = as.character(paste0(round(mean(age_2, na.rm = TRUE), 2), " (", round(sd(age_2, na.rm = TRUE), 2), ")")),
+  ) %>%
+  ungroup() %>%
+  mutate(drug_use_status = case_when(
+    drug_use_status == "Never" ~ "Never Reports Hard Drug Use",
+    drug_use_status == "Previous" ~ "Previously Reports Hard Drug Use",
+    drug_use_status == "Current" ~ "Currently Reports Hard Drug Use",
+    ))%>%
+  pivot_longer(cols = -drug_use_status, names_to = "Demographic and Health", values_to = "Value") %>%
+  pivot_wider(names_from = drug_use_status, values_from = Value)
+
+# Print the summary table
+kable(demographic_summary, caption = "Table 1: Demographic and Other Characteristic Information by Drug Group")
 
 ```
+```{r}
+# Print the summary table 1 with lines between rows
+kable(demographic_summary, caption = "Table 1: Demographic and Health Information by Drug Use Status") %>%
+  kable_styling() %>%
+  row_spec(0, bold = TRUE) %>% # Bold the header
+  row_spec(1:nrow(demographic_summary), extra_css = "border-top: 1px solid black; border-bottom: 1px solid black;")
+```
+
+
 ```{r}
 #chi squared for drug status and VLOAD
 contingency_table <- table(hiv_categorized$drug_use_status, hiv_categorized$VLOAD)
