@@ -48,10 +48,10 @@ library(fastDummies)
 library(vcd)
 
 #linux pathway
-hiv<- read_csv("/home/robmcneil/Documents/advanced_data/hiv_dataset.csv")
+#hiv<- read_csv("/home/robmcneil/Documents/advanced_data/hiv_dataset.csv")
 
 #windows pathway
-#hiv<- read_csv("C:/Users/rrm10/OneDrive/Desktop/advanced data analysis/hiv_dataset.csv")
+hiv<- read_csv("C:/Users/rrm10/OneDrive/Desktop/advanced data analysis/hiv_dataset.csv")
 
 # Jessicas read in data
 #hiv<- read_csv("~/Downloads/hiv_dataset.csv")
@@ -707,8 +707,8 @@ confint(lm_mental)
 
 #calculate residuals and fitted values, of my models 
 
-LEU3N_fitted<- predict(lm_result)
-LEU3N_resid <-  resid(lm_result)
+LEU3N_fitted<- predict(lm_LEU3N)
+LEU3N_resid <-  resid(lm_LEU3N)
 
 vload_fitted <- predict(lm_vload)
 vload_resid <- resid(lm_vload)
@@ -832,18 +832,59 @@ qqline(lm_mental$residuals, col = "red")
 
 ```
 
+```{r}
+#assumptions of MANOVA
+# Check normality for each response variable
+shapiro.test(resid(lm(LEU3N_delta ~ drug_use_currently + drug_use_previously, data = hiv_ltd_delta)))
+shapiro.test(resid(lm(VLOAD_delta ~ drug_use_currently + drug_use_previously, data = hiv_ltd_delta)))
+shapiro.test(resid(lm(AGG_PHYS_delta ~ drug_use_currently + drug_use_previously, data = hiv_ltd_delta)))
+shapiro.test(resid(lm(AGG_MENT_delta ~ drug_use_currently + drug_use_previously, data = hiv_ltd_delta)))
 
+# Q-Q Plots
+par(mfrow = c(2, 2))
+qqnorm(resid(lm(LEU3N_delta ~ drug_use_currently + drug_use_previously, data = hiv_ltd_delta)), main = "LEU3N_delta Q-Q Plot")
+qqline(resid(lm(LEU3N_delta ~ drug_use_currently + drug_use_previously, data = hiv_ltd_delta)))
+
+qqnorm(resid(lm(VLOAD_delta ~ drug_use_currently + drug_use_previously, data = hiv_ltd_delta)), main = "VLOAD_delta Q-Q Plot")
+qqline(resid(lm(VLOAD_delta ~ drug_use_currently + drug_use_previously, data = hiv_ltd_delta)))
+
+qqnorm(resid(lm(AGG_PHYS_delta ~ drug_use_currently + drug_use_previously, data = hiv_ltd_delta)), main = "AGG_PHYS_delta Q-Q Plot")
+qqline(resid(lm(AGG_PHYS_delta ~ drug_use_currently + drug_use_previously, data = hiv_ltd_delta)))
+
+qqnorm(resid(lm(AGG_MENT_delta ~ drug_use_currently + drug_use_previously, data = hiv_ltd_delta)), main = "AGG_MENT_delta Q-Q Plot")
+qqline(resid(lm(AGG_MENT_delta ~ drug_use_currently + drug_use_previously, data = hiv_ltd_delta)))
+
+
+
+```
 ```{r}
 
 
-# Fit the MANOVA model
-manova_model <- manova(cbind(LEU3N, VLOAD) ~ hard_drugs, data = hiv_filtered)
+# Fit the MANOVA model with additional response variables
+manova_model <- manova(cbind(LEU3N_delta, VLOAD_delta, AGG_PHYS_delta, AGG_MENT_delta) ~ drug_use_currently + drug_use_previously, data = hiv_ltd_delta)
 
-# Summarize the MANOVA model
-summary(manova_model)
+# Summarize the MANOVA results using Pillai's trace, bonferroni's adjustment reuires p-value of 0.0125
+summary(manova_model, test = "Pillai")
 
 
-summary(manova_model, test = "Pillai") 
+```
+
+
+
+```{r}
+
+# Fit the MANCOVA model with main effects and interaction terms
+mancova_model <- manova(cbind(LEU3N_delta, VLOAD_delta, AGG_PHYS_delta, AGG_MENT_delta) ~ 
+                         drug_use_currently + 
+                         drug_use_previously + 
+                         ADH_2 + 
+                         drug_use_currently * ADH_2 + 
+                         drug_use_previously * ADH_2, 
+                         data = hiv_ltd_delta)
+
+# Summarize the MANCOVA results using Pillai's trace
+summary(mancova_model, test = "Pillai")
+
 
 ```
 
