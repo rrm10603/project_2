@@ -11,6 +11,97 @@ partial f test or critical values
 correlation coeficients beween variables 
 -
 
+HIV_limited data dictionary:
+
+newid - subject id 
+RACE - subject race
+EDUCBAS - subject education at baseline 
+drug_use_status - subject drug group
+drug_use_currently - current drug use, 1 = yes, 0 = no
+drug_use_previously - previous drug use, 1 = yes, 0 = no
+drug_use_never - never drug use, 1 = yes, 0 = no
+AGG_MENT_0 - SF36 MCS score year 0
+AGG_MENT_2 - SF36 MCS score year 2
+AGG_PHYS_0 - SF36 PCS score year 0
+AGG_PHYS_2 - SF36 PCS score year 2
+HASHV_2 - Hash use since last visit year 2
+HASHF_2 - Frequency of hash use since last visit year 2
+income_2 - income year 2
+BMI_2 - bmi year 2
+HBP_2 - high blood pressure year 2
+DIAB_2 - diabetes year 2
+LIV34_2 - liver disease stage 3 or 4 year 2
+KID_2 - kidney disease year 2
+FRP_2 - Frailty Related Phenotype year 2
+FP_2 - Frailty Phenotype year 2
+TCHOL_2 - total cholesterol year 2
+TRIG_2 - triglycerides year 2
+LDL_2 - Low Density Lipoprotein year 2
+DYSLIP_2 - dyslipidemia at visit year 2
+CESD_2 - Depression scale year 2
+SMOKE_2 - smoking status year 2
+DKGRP_2 - Alcohol use since last visit year 2
+HEROPIATE_2 - Heroin use year 2
+IDU_2 - Took/used drugs with a needle since last visit? year 2
+LEU3N_0 - # of CD4 positive cells year 0
+LEU3N_2 - # of CD4 positive cells year 2
+VLOAD_0 - viral load year 0
+VLOAD_2 - viral load year 2
+ADH_2 - adherence year 2
+age_2 - age year 2
+ART_2 - take art at year 2 visit
+RACE_2 - race, white Hispanic 1 = yes 0 = no
+RACE_3 - race, black non-Hispanic 1 = yes 0 = no
+RACE_4 - race, black Hispanic 1 = yes 0 = no
+RACE_7 - race, other 1 = yes 0 = no
+RACE_8 - race, other Hispanic 1 = yes 0 = no
+EDUCBAS_2 - education at baseline, 9, 10, or 11th grade, 1 = yes 0 = no
+EDUCBAS_3 - education at baseline, 12th grade, 1 = yes 0 = no
+EDUCBAS_4 - education at baseline, At least one year college but no degree, 1 = yes 0 = no
+EDUCBAS_5 - education at baseline, Four years college / got degree, 1 = yes 0 = no
+EDUCBAS_6 - education at baseline, Some graduate work, 1 = yes 0 = no
+EDUCBAS_7 - education at baseline, Post-graduate degree, 1 = yes 0 = no
+HASHF_2_1 - Frequency of hash use year 2, daily, 1 = yes 0 = no
+HASHF_2_2 - Frequency of hash use year 2, weekly, 1 = yes 0 = no
+HASHF_2_3 - Frequency of hash use year 2, monthly, 1 = yes 0 = no
+HASHF_2_4 - Frequency of hash use year 2, less often, 1= yes 0 = no
+income_2_2 - income year 2, 10,000-19,999, 1 = yes 0 = no
+income_2_3 - income year 2, 20,000-29,999, 1 = yes 0 = no
+income_2_4 - income year 2, 30,000-39,999, 1 = yes 0 = no
+income_2_5 - income year 2, 40,000-49,999, 1 = yes 0 = no
+income_2_6 - income year 2, 50,000-59,999, 1 = yes 0 = no
+income_2_7 - income year 2, 60,000 or more, 1 = yes 0 = no
+income_2_9 - income year 2, do not wish to answwer, 1 = yes 0 = no
+HBP_2_2 - High blood pressure year 2, yes, 1 = yes 0 = no 
+HBP_2_3 - High blood pressure year 2, No, based data trajectory, 1 = yes 0 = no
+HBP_2_4 - High blood pressure year 2, yes, based data trajectory, 1 = yes 0 = no
+HBP_2_9 - High blood pressure year 2, insufficient data, 1 = yes 0 = no
+DIAB_2_2 - diabetes year 2, yes, 1 = yes 0 = no 
+DIAB_2_3 - diabetes year 2, No, based data trajectory, 1 = yes 0 = no
+DIAB_2_9 - diabetes year 2, insufficient data, 1 = yes 0 = no
+LIV34_2_2 - stage 3 or 4 liver disease year 2, yes, 1 = yes 0 = no 
+LIV34_2_9 - stage 3 or 4 liver disease year 2, insufficient data, 1 = yes 0 = no
+KID_2_2 - kidney disease at year 2, yes, 1 = yes, 0 = no
+KID_2_9 - kidney disease at year 2, insufficient data, 1 = yes 0 = no
+FRP_2_2 - Frailty Related Phenotype year 2, yes, 1 = yes 0 = no
+FRP_2_9 - Frailty Related Phenotype year 2, insufficient data, 1 = yes 0 = no
+FP_2_2 - Frailty Phenotype year 2, yes, 1 - yes 0 = no
+FP_2_9 - Frailty Phenotype year 2, insufficient data, 1 - yes 0 = no
+DYSLIP_2_2 - dyslipidemia at visit, yes, 1 = yes 0 = no
+DYSLIP_2_3 - dyslipidemia at visit, No, based data trajectory, 1 = yes 0 = no
+DYSLIP_2_4 - dyslipidemia at visit, yes, based data trajectory, 1 = yes 0 = no
+DYSLIP_2_9 - dyslipidemia at visit, insufficient data, 1 = yes 0 = no
+SMOKE_2_2 - smoking status year 2, former smoker, 1 = yes, 0 = no
+SMOKE_2_3 - smoking status year 2, current smoker, 1 = yes, 0 = no
+DKGRP_2_1 - alcohol since last visit year 2, 1-3 drinks per week, 1 = yes, 0 = no
+DKGRP_2_2 - alcohol since last visit year 2, 4-13 drinks per week, 1 = yes, 0 = no
+DKGRP_2_3 - alcohol since last visit year 2, 13 or more drinks per week, 1 = yes, 0 = no
+ADH_2_2 - adherence to treatment year 2, 95-99%, 1 = yes 0= no
+ADH_2_3 - adherence to treatment year 2, 75-94%, 1 = yes 0= no
+ADH_2_4 - adherence to treatment year 2, under 75%, 1 = yes 0= no
+
+
+
 #some steps for commiting to git and pushing to github:
 for git use getwd() function to determine pathway 
 cd /home/robmcneil/Desktop/test
@@ -47,13 +138,13 @@ library(corrplot)
 
 
 #linux pathway
-hiv<- read_csv("/home/robmcneil/Documents/advanced_data/hiv_dataset.csv")
+#hiv<- read_csv("/home/robmcneil/Documents/advanced_data/hiv_dataset.csv")
 
 #windows pathway
 #hiv<- read_csv("C:/Users/rrm10/OneDrive/Desktop/advanced data analysis/hiv_dataset.csv")
 
 # Jessicas read in data
-#hiv<- read_csv("~/Downloads/hiv_dataset.csv")
+hiv<- read_csv("~/Downloads/hiv_dataset.csv")
 
 #check data types
 str(hiv)
