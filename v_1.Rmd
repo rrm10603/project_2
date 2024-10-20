@@ -818,7 +818,7 @@ summary(mancova_model, test = "Pillai")
 
 ```{r}
 
-# using proper ADH values
+# using proper ADH values (factored)
 #convert adh_2 to factor with 4 levels
 hiv_ltd_delta$ADH_2 <- as.factor(hiv_ltd_delta$ADH_2)
 mancova_model <- manova(cbind(LEU3N_delta, log(VLOAD_delta), AGG_PHYS_delta, AGG_MENT_delta) ~ 
@@ -835,7 +835,32 @@ summary(mancova_model, test = "Pillai")
 
 
 ```
+```{r}
 
+# model using levels
+ancova_model <- manova(cbind(LEU3N_delta, log(VLOAD_delta), AGG_PHYS_delta, AGG_MENT_delta) ~ 
+                        drug_use_currently + 
+                        drug_use_previously + 
+                        EDUCBAS_2 + 
+                        ADH_2_2 + 
+                        ADH_2_3 + 
+                        ADH_2_4 + 
+                        drug_use_currently * ADH_2_2 + 
+                        drug_use_currently * ADH_2_3 + 
+                        drug_use_currently * ADH_2_4 + 
+                        drug_use_previously * ADH_2_2 + 
+                        drug_use_previously * ADH_2_3 + 
+                        drug_use_previously * ADH_2_4,
+                        data = hiv_ltd_delta)
+
+# Summarize the ANCOVA results using Pillai's trace
+summary(ancova_model, test = "Pillai")
+
+
+
+
+
+```
 
 
 ```{r}
@@ -864,7 +889,36 @@ cat("Number of negative values:", num_negative_values, "\n")
 ```
 
 
+```{r}
+#run  a t test to see if average change in quality of life is significant. 
+# Calculate average changes
+average_changes <- hiv_ltd_delta %>%
+  summarise(
+    mean_LEU3N_delta = mean(LEU3N_delta, na.rm = TRUE),
+    mean_VLOAD_delta = mean(VLOAD_delta, na.rm = TRUE),
+    mean_AGG_MENT_delta = mean(AGG_MENT_delta, na.rm = TRUE),
+    mean_AGG_PHYS_delta = mean(AGG_PHYS_delta, na.rm = TRUE)
+  )
 
+# Print average changes
+print(average_changes)
+
+# Conduct paired t-tests for AGG_MENT and AGG_PHYS (assuming you have pre- and post variables)
+# Note: Replace AGG_MENT_0 and AGG_PHYS_0 with the actual column names if they differ
+#t_test_AGG_MENT <- t.test(hiv_ltd_delta$AGG_MENT_2, hiv_ltd_delta$AGG_MENT_0, paired = TRUE)
+#t_test_AGG_PHYS <- t.test(hiv_ltd_delta$AGG_PHYS_2, hiv_ltd_delta$AGG_PHYS_0, paired = TRUE)
+
+
+t_test_AGG_MENT <- t.test(hiv_ltd_delta$AGG_MENT_delta, mu = 0, alternative = "two.sided")
+t_test_AGG_PHYS <- t.test(hiv_ltd_delta$AGG_PHYS_delta, mu = 0, alternative = "two.sided")
+# Print t-test results
+print(t_test_AGG_MENT)
+print(t_test_AGG_PHYS)
+
+
+
+
+```
 
 
 
