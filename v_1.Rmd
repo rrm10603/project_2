@@ -50,10 +50,10 @@ library(corrplot)
 
 
 #linux pathway
-hiv<- read_csv("/home/robmcneil/Documents/advanced_data/hiv_dataset.csv")
+#hiv<- read_csv("/home/robmcneil/Documents/advanced_data/hiv_dataset.csv")
 
 #windows pathway
-#hiv<- read_csv("C:/Users/rrm10/OneDrive/Desktop/advanced data analysis/hiv_dataset.csv")
+hiv<- read_csv("C:/Users/rrm10/OneDrive/Desktop/advanced data analysis/hiv_dataset.csv")
 
 # Jessicas read in data
 #hiv<- read_csv("~/Downloads/hiv_dataset.csv")
@@ -798,43 +798,10 @@ summary(manova_model, test = "Pillai")
 
 
 
-```{r}
-
-# Fit the MANCOVA model with main effects and interaction terms
-mancova_model <- manova(cbind(LEU3N_delta, log(VLOAD_delta), AGG_PHYS_delta, AGG_MENT_delta) ~ 
-                         drug_use_currently + 
-                         drug_use_previously + 
-                         ADH_2 + EDUCBAS_2 +
-                         drug_use_currently * ADH_2 + 
-                         drug_use_previously * ADH_2, 
-                         data = hiv_ltd_delta)
-
-# Summarize the MANCOVA results using Pillai's trace
-summary(mancova_model, test = "Pillai")
-
-
-```
-
-
-```{r}
-
-# using proper ADH values (factored)
-#convert adh_2 to factor with 4 levels
-hiv_ltd_delta$ADH_2 <- as.factor(hiv_ltd_delta$ADH_2)
-mancova_model <- manova(cbind(LEU3N_delta, log(VLOAD_delta), AGG_PHYS_delta, AGG_MENT_delta) ~ 
-                         drug_use_currently + 
-                         drug_use_previously + 
-                         ADH_2 + EDUCBAS_2 +
-                         drug_use_currently * ADH_2 + 
-                         drug_use_previously * ADH_2, 
-                         data = hiv_ltd_delta)
-
-# Summarize the MANCOVA results using Pillai's trace
-summary(mancova_model, test = "Pillai")
 
 
 
-```
+
 ```{r}
 
 # model using levels
