@@ -46,12 +46,14 @@ library(Amelia)
 library(mice)
 library(fastDummies)
 library(vcd)
+library(corrplot)
+
 
 #linux pathway
-#hiv<- read_csv("/home/robmcneil/Documents/advanced_data/hiv_dataset.csv")
+hiv<- read_csv("/home/robmcneil/Documents/advanced_data/hiv_dataset.csv")
 
 #windows pathway
-hiv<- read_csv("C:/Users/rrm10/OneDrive/Desktop/advanced data analysis/hiv_dataset.csv")
+#hiv<- read_csv("C:/Users/rrm10/OneDrive/Desktop/advanced data analysis/hiv_dataset.csv")
 
 # Jessicas read in data
 #hiv<- read_csv("~/Downloads/hiv_dataset.csv")
@@ -90,7 +92,7 @@ print(hiv_categorized)
 
 
 ```{r}
-#Get dummy variables for drug use status
+#Get dummy variables for drug use status 
 
 hiv_categorized <- hiv_categorized %>%
   mutate(
@@ -408,77 +410,6 @@ kable(demographic_summary, caption = "Table 1: Demographic and Health Informatio
 ```
 
 
-```{r}
-#chi squared for drug status and VLOAD
-contingency_table <- table(hiv_categorized$drug_use_status, hiv_categorized$VLOAD)
-
-# Print the contingency table
-#print(contingency_table)
-
-# Run the Chi-squared test
-chi_squared_result <- chisq.test(contingency_table)
-
-# Print the results
-print(chi_squared_result)
-
-
-
-```
-
-
-```{r}
-#chi squared for drug status and LEU3N
-contingency_table <- table(hiv_categorized$drug_use_status, hiv_categorized$LEU3N)
-
-# Print the contingency table
-#print(contingency_table)
-
-# Run the Chi-squared test
-chi_squared_result <- chisq.test(contingency_table)
-
-# Print the results
-print(chi_squared_result)
-
-
-
-
-
-```
-```{r}
-#chi squared for drug status and AGG_PHYS
-contingency_table <- table(hiv_categorized$drug_use_status, hiv_categorized$AGG_PHYS)
-
-# Print the contingency table
-#print(contingency_table)
-
-# Run the Chi-squared test
-chi_squared_result <- chisq.test(contingency_table)
-
-# Print the results
-print(chi_squared_result)
-
-
-
-```
-
-
-
-```{r}
-#chi squared for drug status and AGG_MENT
-contingency_table <- table(hiv_categorized$drug_use_status, hiv_categorized$AGG_MENT)
-
-# Print the contingency table
-#print(contingency_table)
-
-# Run the Chi-squared test
-chi_squared_result <- chisq.test(contingency_table)
-
-# Print the results
-print(chi_squared_result)
-
-
-
-```
 
 
 ```{r}
@@ -490,7 +421,7 @@ print(chi_squared_result)
 hiv_ltd_delta <- HIV_limited %>%
   mutate(
     LEU3N_delta = LEU3N_2 - LEU3N_0,
-    VLOAD_delta = VLOAD_2 - VLOAD_0,
+    VLOAD_delta = VLOAD_0 - VLOAD_2,
     AGG_MENT_delta = AGG_MENT_2 - AGG_MENT_0,
     AGG_PHYS_delta = AGG_PHYS_2 - AGG_PHYS_0
   )
@@ -504,70 +435,6 @@ hiv_ltd_delta <- HIV_limited %>%
 ```
 
 
-
-
-
-```{r}
-
-
-#Below are is a function for calcuation of change variables on the longitudinal dataset: most likely will not analyze this data frame due to lack of imputation on never group 
-
-
-
-
-
-delta_calculations <- function(data) {
-    data %>%
-        filter(years %in% c(0, 2)) %>%  # Keep only years 0 and 2
-        group_by(newid) %>%              # Group by newid
-        summarize(
-            delta_VLOAD = VLOAD[years == 0] - VLOAD[years == 2], #calc VLOAD delta
-            delta_LEU3N = LEU3N[years ==2]  - LEU3N[years ==0],
-            delta_ment  = AGG_MENT[years ==2] - AGG_MENT[years==0],
-            delta_phys  = AGG_PHYS[years ==2] - AGG_PHYS[years==0],
-            drug_use_status = first(drug_use_status),  # Get drug use status
-            ADH = last(ADH),                          # Get ADH
-            age = last(age), 
-            HASHV = last(HASHV),
-            HASHF = last(HASHF),
-            income = first(income),
-            BMI    = last(BMI),
-            HBP    = last(HBP), 
-            DIAB   = first(DIAB),
-            LIV34  = first(LIV34),
-            KID    = first(KID),
-            FRP    = first(FRP),
-            FP     = first(FP),
-            TCHOL  = mean(TCHOL, na.rm = TRUE),
-            TRIG   = mean(TRIG, na.rm = TRUE),
-            LDL    = mean(LDL, na.rm = TRUE),
-            DYSLIP = first(DYSLIP),
-            CESD   = last(CESD),
-            SMOKE  = last(SMOKE),
-            DKGRP  = last(DKGRP),     #alchohol use
-            HEROPIATE= last(HEROPIATE),
-            IDU    = last (IDU),
-            RACE   = first(RACE),
-            EDUCBAS = last (EDUCBAS),
-            hivpos  = first(hivpos),
-            ART     = last(ART),
-            everART = first(everART),
-            
-            
-            
-            .groups = 'drop'                           # Drop grouping
-        ) 
-}
-
-# Call the function
-hiv_deltas <- delta_calculations(hiv_categorized)
-
-# View the result
-print(hiv_deltas)
-
-
-
-```
 
 
 
@@ -662,20 +529,80 @@ ggplot(hiv_deltas, aes(x = factor(drug_use_status), y = delta_phys, color = fact
 
 
 ```
+
+
 ```{r}
 
-#create correlation matrix 
+#correlation matrix for wide data set
 
-hiv_filtered_c <- hiv_filtered %>%
-  na.omit()
-correlation_matrix <-cor(hiv_filtered_c)
-print(correlation_matrix)
-#heropialte (took heroine or opiates since last visit) and IDU (took drugs with a needle) are highly correlated with hard_drugs
+# Step 4: Calculate the correlation matrix on HIV_limited
+# Select only numeric columns
+numeric_columns <- sapply(HIV_limited, is.numeric)
+HIV_numeric <- HIV_limited[, numeric_columns]
+
+# Step 5: Compute the correlation matrix
+correlation_matrix <- cor(HIV_numeric, use = "pairwise.complete.obs")
+
+# Step 6: Visualize the correlation matrix
+corrplot(correlation_matrix, method = "circle", tl.col = "black", tl.srt = 45)
+
+#education level of highschool correlated with drug usage (positively correlaterd with previous drug use, negatively correlated with never drug use )
+```
+
+
+```{r}
+
+# Melt the correlation matrix for ggplot2
+melted_correlation <- melt(correlation_matrix, na.rm = TRUE)
+
+# Plot the heatmap
+ggplot(melted_correlation, aes(Var1, Var2, fill = value)) +
+  geom_tile() +
+  scale_fill_gradient2(low = "blue", high = "red", mid = "white", limit = c(-1, 1), 
+                       name = "Correlation") +
+  theme_minimal() +
+  labs(title = "Correlation Matrix Heatmap", x = "Variables", y = "Variables") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+
 
 
 
 ```
 
+
+```{r}
+
+# Select only numeric columns
+numeric_columns <- sapply(hiv_ltd_delta, is.numeric)
+hiv_ltd_numeric <- hiv_ltd_delta[, numeric_columns]
+
+# Compute the correlation matrix
+correlation_matrix <- cor(hiv_ltd_numeric, use = "pairwise.complete.obs")
+
+# Set the threshold for filtering
+threshold <- 0.5
+
+# Create a logical matrix for correlations above the threshold
+high_correlations <- abs(correlation_matrix) > threshold
+
+# Filter the correlation matrix
+filtered_correlations <- correlation_matrix[high_correlations]
+
+# Convert to a data frame for easier readability
+filtered_correlations_df <- as.data.frame(as.table(filtered_correlations))
+
+# Remove NA values and self-correlations
+filtered_correlations_df <- na.omit(filtered_correlations_df)
+filtered_correlations_df <- filtered_correlations_df[filtered_correlations_df$Var1 != filtered_correlations_df$Var2, ]
+
+# Print the filtered correlations
+print(filtered_correlations_df)
+
+
+
+
+```
 
 ```{r}
 
@@ -861,7 +788,7 @@ qqline(resid(lm(AGG_MENT_delta ~ drug_use_currently + drug_use_previously, data 
 
 
 # Fit the MANOVA model with additional response variables
-manova_model <- manova(cbind(LEU3N_delta, VLOAD_delta, AGG_PHYS_delta, AGG_MENT_delta) ~ drug_use_currently + drug_use_previously, data = hiv_ltd_delta)
+manova_model <- manova(cbind(LEU3N_delta, log(VLOAD_delta), AGG_PHYS_delta, AGG_MENT_delta) ~ drug_use_currently + drug_use_previously, data = hiv_ltd_delta)
 
 # Summarize the MANOVA results using Pillai's trace, bonferroni's adjustment reuires p-value of 0.0125
 summary(manova_model, test = "Pillai")
@@ -874,10 +801,10 @@ summary(manova_model, test = "Pillai")
 ```{r}
 
 # Fit the MANCOVA model with main effects and interaction terms
-mancova_model <- manova(cbind(LEU3N_delta, VLOAD_delta, AGG_PHYS_delta, AGG_MENT_delta) ~ 
+mancova_model <- manova(cbind(LEU3N_delta, log(VLOAD_delta), AGG_PHYS_delta, AGG_MENT_delta) ~ 
                          drug_use_currently + 
                          drug_use_previously + 
-                         ADH_2 + 
+                         ADH_2 + EDUCBAS_2 +
                          drug_use_currently * ADH_2 + 
                          drug_use_previously * ADH_2, 
                          data = hiv_ltd_delta)
@@ -890,42 +817,35 @@ summary(mancova_model, test = "Pillai")
 
 
 
-
 ```{r}
-#perform stepwise regression for model selection 
-# Remove rows with NA values in the relevant columns
-hiv_clean <- hiv_filtered %>%
-  na.omit
 
-# Define the formula for LEU3N (saturated)
-LEU3N_formula <- LEU3N ~ hard_drugs + IDU+HEROPIATE+ age + EDUCBAS + RACE + ADH +DKGRP + SMOKE + CESD + DYSLIP +LDL +TRIG+ TCHOL +FP+FRP+KID+LIV34+DIAB+HBP+BMI+income+HASHF
+#DQ check on VLOAD variable. logtransform may not be working due to missingness 
 
-# Perform stepwise regression for attachment on the cleaned data
-stepwise_model <- stepwise(formula = LEU3N_formula,
-                                   data = hiv_clean,
-                                   type = "linear",
-                                   include = c('hard_drugs'), # Adjust as needed
-                                   strategy = "bidirection",
-                                   metric = c("AIC", "BIC"))
+# Summary statistics for VLOAD_delta
+summary(hiv_ltd_delta$VLOAD_delta)
 
-# view stepwise model
-stepwise_model
+# Check for missing values
+sum(is.na(hiv_ltd_delta$VLOAD_delta))
+
+# Check for negative values
+negative_values <- hiv_ltd_delta$VLOAD_delta[hiv_ltd_delta$VLOAD_delta < 0]
+print(negative_values)
+
+# Count of negative values
+num_negative_values <- length(negative_values)
+cat("Number of negative values:", num_negative_values, "\n")
+
+
+
+
 
 
 ```
 
 
 
-```{r}
 
-test_model <- lm(LEU3N~ hard_drugs +age, data= hiv_clean)
 
-test_model_i <- lm(LEU3N ~ hard_drugs *age, data =hiv_clean)
-
-summary(test_model)
-summary(test_model_i)
-
-```
 
 
 
