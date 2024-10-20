@@ -816,6 +816,27 @@ summary(mancova_model, test = "Pillai")
 ```
 
 
+```{r}
+
+# using proper ADH values
+#convert adh_2 to factor with 4 levels
+hiv_ltd_delta$ADH_2 <- as.factor(hiv_ltd_delta$ADH_2)
+mancova_model <- manova(cbind(LEU3N_delta, log(VLOAD_delta), AGG_PHYS_delta, AGG_MENT_delta) ~ 
+                         drug_use_currently + 
+                         drug_use_previously + 
+                         ADH_2 + EDUCBAS_2 +
+                         drug_use_currently * ADH_2 + 
+                         drug_use_previously * ADH_2, 
+                         data = hiv_ltd_delta)
+
+# Summarize the MANCOVA results using Pillai's trace
+summary(mancova_model, test = "Pillai")
+
+
+
+```
+
+
 
 ```{r}
 
