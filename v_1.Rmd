@@ -1,31 +1,31 @@
 ---
 title: "version 1"
 output:
-  word_document: default
   html_document: default
+  word_document: default
 date: "2024-10-07"
 ---
 
-partial f test or critical values
-
-correlation coeficients beween variables 
 -
 
-#some steps for commiting to git and pushing to github:
+#below are steps for usefull command line prompts for git:
 for git use getwd() function to determine pathway 
 cd /home/robmcneil/Desktop/test
 git branch
 git checkout your-branch-name (can do this in R terminal )
 git status
 git push origin your-branch-name
-#prof mentioned inclusion of an interaction term 
+
+
+
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
 
 
-```{r}
+```{r, include= FALSE}
 
 #read in data
 
@@ -47,23 +47,22 @@ library(corrplot)
 
 
 #linux pathway
-hiv<- read_csv("/home/robmcneil/Documents/advanced_data/hiv_dataset.csv")
+#hiv<- read_csv("/home/robmcneil/Documents/advanced_data/hiv_dataset.csv")
 
 #windows pathway
-#hiv<- read_csv("C:/Users/rrm10/OneDrive/Desktop/advanced data analysis/hiv_dataset.csv")
+hiv<- read_csv("C:/Users/rrm10/OneDrive/Desktop/advanced data analysis/hiv_dataset.csv")
 
 # Jessicas read in data
 #hiv<- read_csv("~/Downloads/hiv_dataset.csv")
 
-#check data types
+#check data types with str function
 str(hiv)
-print(hiv)
 
 ```
 
 
 
-```{r}
+```{r, include=FALSE}
 #filter dataset to two years
 print(hiv)
 hiv_filtered <- hiv %>%
@@ -71,7 +70,7 @@ hiv_filtered <- hiv %>%
 print(hiv_filtered)
 ```
 
-```{r}
+```{r, include=FALSE}
 # Get drug use status
 hiv_categorized <- hiv_filtered %>%
   group_by(newid) %>%
@@ -88,7 +87,7 @@ print(hiv_categorized)
 ```
 
 
-```{r}
+```{r, include=FALSE}
 #Get dummy variables for drug use status 
 
 hiv_categorized <- hiv_categorized %>%
@@ -102,8 +101,8 @@ print(hiv_categorized)
 ```
 
 
-```{r}
-#Turn dataswt from long to wide for missing data evaluation, so we only have one observation per subject
+```{r, include= FALSE}
+#Turn dataset from long to wide for missing data evaluation, so we only have one observation per subject
 
 wide_hiv_categorized <-hiv_categorized %>%
   pivot_wider(
@@ -118,13 +117,15 @@ print(wide_hiv_categorized)
 
 ```
 
-```{r}
+```{r,echo=FALSE}
 # Visualize what variables are missing data and how much is missing  
 aggr(wide_hiv_categorized, col=c('navyblue','red'), numbers=TRUE, sortVars=TRUE, labels=names(wide_hiv_categorized), cex.axis=0.7, gap=3, ylab=c("Missing data","Pattern"))
 
 vis_miss(wide_hiv_categorized)
 ```
-```{r}
+
+
+```{r,echo=FALSE}
 #See what percent of data is missing for non-outcome variables by drug use status
 wide_hiv_categorized$TRIG_1_missing <- ifelse(is.na(wide_hiv_categorized$TRIG_1), 1, 0)
 wide_hiv_categorized$LDL_1_missing <- ifelse(is.na(wide_hiv_categorized$LDL_1),1,0)
@@ -190,7 +191,7 @@ missing_demogrphic_by_drug_use_status <- wide_hiv_categorized %>%
 print(missing_demogrphic_by_drug_use_status)
 ```
 
-```{r}
+```{r,echo=FALSE}
 #see what percent of of each outcome variable is missing by drug use status group
 wide_hiv_categorized$VLOAD_0_missing <- ifelse(is.na(wide_hiv_categorized$VLOAD_0), 1, 0)
 wide_hiv_categorized$VLOAD_2_missing <- ifelse(is.na(wide_hiv_categorized$VLOAD_2),1,0)
@@ -218,10 +219,10 @@ missing_percent_by_drug_use_status <- wide_hiv_categorized %>%
 
 print(missing_percent_by_drug_use_status)
 ```
-Important finding that outcome variables are only missing for those in the never treatment group, data is missing at random 
+Important finding: that outcome variables are only missing for those in the never treatment group, data is missing at random 
 
 
-```{r}
+```{r,echo=FALSE}
 #visualize data that is missing jst in the never group to look for further patterns
 data_never <- wide_hiv_categorized %>%
   filter(drug_use_status == "Never")
@@ -231,7 +232,7 @@ aggr(data_never, col=c('navyblue','red'), numbers=TRUE, sortVars=TRUE, labels=na
 vis_miss(data_never)
 ```
 
-```{r}
+```{r,echo=FALSE}
 #visualize similarities between missingness
 missing_data <- wide_hiv_categorized %>%
   filter(is.na(VLOAD_2))
@@ -242,7 +243,7 @@ gg_miss_upset(missing_data)
 ```
 
 
-```{r}
+```{r,include=FALSE}
 
 
 # Filter the dataset for observations where drug_use_status == "Never"
@@ -286,36 +287,27 @@ hist(data_current$log_vload0, breaks = 20, main = "Histogram of Numeric Variable
 hist(data_current$log_vload2, breaks = 20, main = "Histogram of Numeric Variable", xlab = "Values", ylab = "Frequency")
 ```
  
-```{r}
-#/impute data using knn try 1 
-imputed_data <- kNN(wide_hiv_categorized, variable = "VLOAD_2")
-imputed_data1 <- kNN(imputed_data, variable = "VLOAD_0")
-imputed_data2 <- kNN(imputed_data1, variable = "LEU3N_0")
-imputed_data3 <- kNN(imputed_data2, variable = "LEU3N_2")
-imputed_data4 <- kNN(imputed_data3, variable = "AGG_PHYS_0")
-imputed_data5 <- kNN(imputed_data4, variable = "AGG_PHYS_2")
-imputed_data6 <- kNN(imputed_data5, variable = "AGG_MENT_0")
-HIV_imputed <- kNN(imputed_data6, variable = "AGG_MENT_2")
-print(HIV_imputed)
-```
-```{r}
+
+
+
+```{r, include=FALSE}
 #impute data using knn try 2 (this one is better)
 HIV_imputed1 <- kNN(wide_hiv_categorized)
 print(HIV_imputed1)
 ```
-```{r}
+```{r, include=FALSE}
 #choose certain variables so dataset is less overwhelming 
 HIV_limited <- HIV_imputed1 %>%
   select(newid,RACE,EDUCBAS,drug_use_status,drug_use_currently,drug_use_previously,drug_use_never, AGG_MENT_0,AGG_MENT_2,AGG_PHYS_0, AGG_PHYS_2, HASHV_2, HASHF_2, income_2,  BMI_2, HBP_2, DIAB_2, LIV34_2, KID_2, FRP_2,FP_2, TCHOL_2,TRIG_2,LDL_2, DYSLIP_2, CESD_2, SMOKE_2, DKGRP_2, HEROPIATE_2, IDU_2, LEU3N_0,LEU3N_2, VLOAD_0, VLOAD_2, ADH_0, ADH_2, age_2, ART_2, everART_0)
 print(HIV_limited)
 ```
-```{r}
+```{r, include=FALSE}
 #Convert numeric categorical variables to character so you can get dummies 
 HIV_limited[, c("RACE","EDUCBAS","HASHF_2", "income_2","HBP_2","DIAB_2","LIV34_2","KID_2", "FRP_2","FP_2","DYSLIP_2","SMOKE_2","DKGRP_2","ADH_0","ADH_2")] <- lapply(HIV_limited[,c("RACE","EDUCBAS","HASHF_2", "income_2","HBP_2","DIAB_2","LIV34_2","KID_2", "FRP_2","FP_2","DYSLIP_2","SMOKE_2","DKGRP_2","ADH_0","ADH_2")],as.character)
 str(HIV_limited)
 ```
 
-```{r}
+```{r, include=FALSE}
 #Get dummy variables
 category_vars <- c("RACE","EDUCBAS","HASHF_2", "income_2","HBP_2","DIAB_2","LIV34_2","KID_2", "FRP_2","FP_2","DYSLIP_2","SMOKE_2","DKGRP_2","ADH_0","ADH_2")
 for (var in category_vars) {
@@ -324,7 +316,7 @@ for (var in category_vars) {
 print(HIV_limited)
 ```
 
-```{r}
+```{r,include=FALSE}
 
 #code for table 1 
 demographic_summary <-  HIV_limited %>% 
@@ -398,7 +390,7 @@ demographic_summary <-  HIV_limited %>%
 kable(demographic_summary, caption = "Table 1: Demographic and Other Characteristic Information by Drug Group")
 
 ```
-```{r}
+```{r,echo=FALSE}
 # Print the summary table 1 with lines between rows
 kable(demographic_summary, caption = "Table 1: Demographic and Health Information by Drug Use Status") %>%
   kable_styling() %>%
@@ -409,7 +401,7 @@ kable(demographic_summary, caption = "Table 1: Demographic and Health Informatio
 
 
 
-```{r}
+```{r,include=FALSE}
 
 #calculate change variables for physical, mental, VLOAD, and LEU3N
 
@@ -436,7 +428,7 @@ hiv_ltd_delta <- HIV_limited %>%
 
 
 
-```{r}
+```{r,echo=FALSE}
 #visualize CD4 positive cells
 
 #test assumption of linearity 
@@ -446,16 +438,16 @@ ggplot(hiv_ltd_delta, aes(x = factor(drug_use_status), y = LEU3N_delta, color = 
   geom_boxplot() +
   stat_summary(fun = mean, geom = "point", shape = 3, size = 3, color = "black") +  # Adds mean points
   labs(
-    title = "Figure Box Plot of CD4 based on Drug Usage Groups",
+    title = "Figure 1: Average Change CD4+T Cell based on Drug Usage Groups",
     x = "Drug Usage Group",
-    y = "CD4",
+    y = "Average Change CD4+ T Cell",
     color = "Treatment Group"
   ) +
   theme_minimal()
 ```
 
 
-```{r}
+```{r,echo=FALSE}
 
 #for viral load outcome
 #dont need to test for linearity with categorical variables 
@@ -464,9 +456,9 @@ ggplot(hiv_ltd_delta, aes(x = factor(drug_use_status), y = log(VLOAD_delta), col
   geom_boxplot() +
   stat_summary(fun = mean, geom = "point", shape = 3, size = 3, color = "black") +  # Adds mean points
   labs(
-    title = "Figure Box Plot of log-transformed Viral Load based on Drug Usage Groups",
+    title = "Figure 2: log-transformed Average Change Viral Load based on Drug Usage Groups",
     x = "Drug Usage Group",
-    y = "Log Viral Load",
+    y = "Log Viral Load Average Change",
     color = "Treatment Group"
   ) +
   theme_minimal()
@@ -479,7 +471,7 @@ ggplot(hiv_ltd_delta, aes(x = factor(drug_use_status), y = log(VLOAD_delta), col
 
 
 
-```{r}
+```{r,echo=FALSE}
 #visualize agg_ment
 
 
@@ -488,7 +480,7 @@ ggplot(hiv_ltd_delta, aes(x = factor(drug_use_status), y = AGG_MENT_delta, color
   geom_boxplot() +
   stat_summary(fun = mean, geom = "point", shape = 3, size = 3, color = "black") +  # Adds mean points
   labs(
-    title = "Box Plot of AGG_MENT Based on Drug Usage Groups",
+    title = "Figure 3: Average Change Mental Health Based on Drug Usage Groups",
     x = "Drug Usage Group",
     y = "AGG_MENT",
     color = "Drug Usage Group"
@@ -504,16 +496,16 @@ ggplot(hiv_ltd_delta, aes(x = factor(drug_use_status), y = AGG_MENT_delta, color
 
 
 ```
-```{r}
+```{r,echo=FALSE}
 #visualize agg_phys
 # Create the box plot
 ggplot(hiv_ltd_delta, aes(x = factor(drug_use_status), y = AGG_PHYS_delta, color = factor(drug_use_status))) +
   geom_boxplot() +
   stat_summary(fun = mean, geom = "point", shape = 3, size = 3, color = "black") +  # Adds mean points
   labs(
-    title = "Box Plot of AGG_Phys Based on Drug Usage Groups",
+    title = "Figure 5: Average Change of Physical Health Based on Drug Usage Groups",
     x = "Drug Usage Group",
-    y = "AGG_MENT",
+    y = "AGG_Phys",
     color = "Drug Usage Group"
   ) +
   theme_minimal() +
@@ -528,47 +520,9 @@ ggplot(hiv_ltd_delta, aes(x = factor(drug_use_status), y = AGG_PHYS_delta, color
 ```
 
 
-```{r}
-
-#correlation matrix for wide data set
-
-# Step 4: Calculate the correlation matrix on HIV_limited
-# Select only numeric columns
-numeric_columns <- sapply(HIV_limited, is.numeric)
-HIV_numeric <- HIV_limited[, numeric_columns]
-
-# Step 5: Compute the correlation matrix
-correlation_matrix <- cor(HIV_numeric, use = "pairwise.complete.obs")
-
-# Step 6: Visualize the correlation matrix
-corrplot(correlation_matrix, method = "circle", tl.col = "black", tl.srt = 45)
-
-#education level of highschool correlated with drug usage (positively correlaterd with previous drug use, negatively correlated with never drug use )
-```
 
 
-```{r}
-
-# Melt the correlation matrix for ggplot2
-melted_correlation <- melt(correlation_matrix, na.rm = TRUE)
-
-# Plot the heatmap
-ggplot(melted_correlation, aes(Var1, Var2, fill = value)) +
-  geom_tile() +
-  scale_fill_gradient2(low = "blue", high = "red", mid = "white", limit = c(-1, 1), 
-                       name = "Correlation") +
-  theme_minimal() +
-  labs(title = "Correlation Matrix Heatmap", x = "Variables", y = "Variables") +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
-
-
-
-
-
-```
-
-
-```{r}
+```{r,echo=FALSE}
 
 # Select only numeric columns
 numeric_columns <- sapply(hiv_ltd_delta, is.numeric)
@@ -601,10 +555,9 @@ print(filtered_correlations_df)
 
 ```
 
-```{r}
+```{r, include=FALSE}
 
-#simple linear regression models. rework to set never as the reference group
-#unique(hiv_deltas$drug_use_status) 
+#simple linear regression models - getting residuals to check assumption of equal variance 
 
 # Linear model for T-Cell Count
 lm_LEU3N <- lm(LEU3N_delta ~ drug_use_currently + drug_use_previously, data = hiv_ltd_delta)
@@ -627,7 +580,7 @@ summary(lm_mental)
 confint(lm_mental)
 ```
 
-```{r}
+```{r,include=FALSE}
 
 #calculate residuals and fitted values, of my models 
 
@@ -648,9 +601,9 @@ ment_resid  <- fitted(lm_mental)
 
 
 ```
+Checking Assumptions of MANOVA
 
-
-```{r}
+```{r,include=FALSE}
 
 # Plot Residuals vs Fitted LEU3N  (Homoscedasticity)
 ggplot(data = NULL, aes(x = LEU3N_fitted, y = LEU3N_resid)) +
@@ -692,7 +645,7 @@ ggplot(data = NULL, aes(x = ment_fitted, y = ment_resid)) +
 
 ```
 Check Normality
-```{r}
+```{r,echo=FALSE}
 
 # Histogram of original VLOAD_delta
 ggplot(hiv_ltd_delta, aes(x = VLOAD_delta)) +
@@ -733,7 +686,7 @@ ggplot(hiv_ltd_delta, aes(x = AGG_MENT_delta)) +
 
 ```
 
-```{r}
+```{r, echo=FALSE}
 #qq Plots
 
 # Q-Q Plot for T-Cell Count
@@ -756,7 +709,7 @@ qqline(lm_mental$residuals, col = "red")
 
 ```
 
-```{r}
+```{r, echo=FALSE}
 #assumptions of MANOVA
 # Check normality for each response variable
 shapiro.test(resid(lm(LEU3N_delta ~ drug_use_currently + drug_use_previously, data = hiv_ltd_delta)))
@@ -781,7 +734,7 @@ qqline(resid(lm(AGG_MENT_delta ~ drug_use_currently + drug_use_previously, data 
 
 
 ```
-```{r}
+```{r,echo=FALSE}
 
 
 # Fit the MANOVA model with additional response variables
@@ -793,7 +746,7 @@ summary(manova_model_basic, test = "Pillai")
 
 ```
 
-```{r}
+```{r,echo=FALSE}
 
 # Get the summary of the MANOVA model using Pillai's test
 manova_summary_basic <- summary(manova_model_basic, test = "Pillai")
@@ -838,7 +791,7 @@ manova_results_basic %>%
 
 
 
-```{r}
+```{r,echo=FALSE}
 
 # Updated model with interaction terms for education
 manova_model <- manova(cbind(LEU3N_delta, log(VLOAD_delta), AGG_PHYS_delta, AGG_MENT_delta) ~ 
@@ -880,7 +833,7 @@ summary(manova_model, test = "Pillai")
 
 
 ```
-```{r}
+```{r,echo=FALSE}
 
 
 
