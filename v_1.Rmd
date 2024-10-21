@@ -181,6 +181,21 @@ print(hiv_categorized)
 
 ```
 
+```{r}
+#run initial correlation matrix to see how outcome variables are correlated with eachother
+
+# Run the correlation on numeric columns only
+correlation_matrix <- cor(hiv_filtered %>% select(where(is.numeric)), use = "complete.obs")
+
+
+
+# Print compact correlation matrix
+kable(correlation_matrix, digits = 2, caption = "Correlation Matrix for HIV Data (Years <= 2)") %>%
+  kable_styling(position = "center", full_width = F)
+
+
+```
+
 
 ```{r, include=FALSE}
 #Get dummy variables for drug use status 
