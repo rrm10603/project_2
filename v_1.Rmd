@@ -314,6 +314,29 @@ missing_percent_by_drug_use_status <- wide_hiv_categorized %>%
 
 print(missing_percent_by_drug_use_status)
 ```
+visualize percent missing by drug use status
+
+```{r}
+# Reshape data for ggplot
+missing_long <- missing_percent_by_drug_use_status %>%
+  pivot_longer(cols = starts_with("percent_missing"), 
+               names_to = "outcome", 
+               values_to = "percent_missing")
+
+# Create the bar plot
+ggplot(missing_long, aes(x = outcome, y = percent_missing, fill = drug_use_status)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  theme_minimal() +
+  labs(title = "Figure 5:Percentage of Missing Data by Outcome and Drug Use Status",
+       x = "Outcome Variables",
+       y = "Percentage Missing") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+
+
+
+
+```
 Important finding: that outcome variables are only missing for those in the never treatment group, data is missing at random 
 
 
@@ -649,6 +672,8 @@ print(filtered_correlations_df)
 
 
 ```
+
+
 
 ```{r, include=FALSE}
 
