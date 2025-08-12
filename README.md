@@ -1,2 +1,4 @@
 # project_2
 BIOS 6623 project 2
+
+This repository contains a structured R workflow to analyze changes in viral load (VLOAD) and related psychological/clinical measures among individuals living with HIV, categorized by drug use patterns (current, previous, never users).
